@@ -31,8 +31,15 @@ wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/driver
 if grep -q "sc16is7xx" "arch/arm/boot/dts/overlays/Makefile"; then
         echo ""
 else
-        echo "dtb-\$(RPI_DT_OVERLAYS) += sc16is7xx-ttysc0-overlay.dtb" >>arch/arm/boot/dts/overlays/Makefile
+        sed -i 's/mcp2515-can1-overlay/sc16is7xx-ttysc0-overlay/g' arch/arm/boot/dts/overlays/Makefile
 fi
+
+if grep -q "obj-m += sc16is7xx.o" "drivers/tty/serial/Makefile"; then
+        echo ""
+else
+        echo "obj-m += sc16is7xx.o" >>drivers/tty/serial/Makefile
+fi
+
 
 make SUBDIRS=arch/arm/boot/dts/overlays modules
 make SUBDIRS=drivers/tty/serial modules
