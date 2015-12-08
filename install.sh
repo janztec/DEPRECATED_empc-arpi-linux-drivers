@@ -76,6 +76,11 @@ cp drivers/tty/serial/sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/seria
 
 depmod -a
 
+# installing service to start can0 on boot
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
+systemctl enable can0.service
+
+
 if grep -q "spi-bcm2835" "/boot/config.txt"; then
         echo ""
 else
