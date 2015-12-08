@@ -5,14 +5,13 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
+
 apt-get update
 apt-get -y install libncurses5-dev
-apt-get -y install gcc-4.8 g++-4.8
+apt-get -y install gcc-$GCCVER g++-$GCCVER
 
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20
-update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 20
+export CC=/usr/bin/gcc-$GCCVER
 
 mkdir -p /home/pi/empc-arpi-linux-drivers
 cd /home/pi/empc-arpi-linux-drivers
