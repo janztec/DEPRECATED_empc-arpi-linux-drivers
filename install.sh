@@ -160,11 +160,12 @@ rm -rf libsocketcan-0.0.10.tar.bz2
 cd libsocketcan-0.0.10
 ./configure && make && make install
 
+cd ..
+
 git clone https://github.com/linux-can/can-utils.git
 cd can-utils
 ./autogen.sh
 ./configure && make && make install
-
 
 
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
