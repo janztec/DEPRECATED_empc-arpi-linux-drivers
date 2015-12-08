@@ -151,8 +151,8 @@ echo ""
 
 cd /home/pi
 
-apt-get install autoconf
-apt-get install libtool
+apt-get -y install autoconf
+apt-get -y install libtool
 
 wget http://www.pengutronix.de/software/libsocketcan/download/libsocketcan-0.0.10.tar.bz2
 tar xvjf libsocketcan-0.0.10.tar.bz2
