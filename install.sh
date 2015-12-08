@@ -1,8 +1,8 @@
 #!/bin/bash
 
 apt-get update
-apt-get install libncurses5-dev
-apt-get install gcc-4.8 g++-4.8
+apt-get -y install libncurses5-dev
+apt-get -y install gcc-4.8 g++-4.8
 
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20
@@ -40,6 +40,7 @@ cp drivers/spi/spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm283
 cp drivers/net/can/spi/mcp251x.ko /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
 cp drivers/tty/serial/sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
 
+depmod -a
 
 if grep -q "spi-bcm2835" "/boot/config.txt"; then
         echo ""
