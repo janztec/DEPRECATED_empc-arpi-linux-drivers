@@ -11,6 +11,7 @@ GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
 apt-get update
+apt-get -y install git
 apt-get -y install libncurses5-dev
 apt-get -y install gcc-$GCCVER g++-$GCCVER
 
@@ -166,7 +167,7 @@ rm -rf libsocketcan-0.0.10.tar.bz2
 cd libsocketcan-0.0.10
 ./configure && make && make install
 
-cd ..
+cd /home/pi
 
 git clone https://github.com/linux-can/can-utils.git
 cd can-utils
