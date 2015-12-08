@@ -11,7 +11,6 @@ GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
 apt-get update
-apt-get -y install git
 apt-get -y install libncurses5-dev
 apt-get -y install gcc-$GCCVER g++-$GCCVER
 
@@ -152,28 +151,33 @@ else
 fi
 
 
-echo ""
-echo "INFO: installing SocketCAN (libsocketcan) libraries and can-utils"
-echo ""
 
-cd /home/pi
+if [ ! -f "/usr/local/bin/cansend" ]; then
 
-apt-get -y install autoconf
-apt-get -y install libtool
+    echo ""
+    echo "INFO: installing SocketCAN (libsocketcan) libraries and can-utils"
+    echo ""
+    
+    apt-get -y install git
+    apt-get -y install autoconf
+    apt-get -y install libtool
 
-wget http://www.pengutronix.de/software/libsocketcan/download/libsocketcan-0.0.10.tar.bz2
-tar xvjf libsocketcan-0.0.10.tar.bz2
-rm -rf libsocketcan-0.0.10.tar.bz2
-cd libsocketcan-0.0.10
-./configure && make && make install
+    cd /home/pi
+    
+    wget http://www.pengutronix.de/software/libsocketcan/download/libsocketcan-0.0.10.tar.bz2
+    tar xvjf libsocketcan-0.0.10.tar.bz2
+    rm -rf libsocketcan-0.0.10.tar.bz2
+    cd libsocketcan-0.0.10
+    ./configure && make && make install
 
-cd /home/pi
+    cd /home/pi
 
-git clone https://github.com/linux-can/can-utils.git
-cd can-utils
-./autogen.sh
-./configure && make && make install
+    git clone https://github.com/linux-can/can-utils.git
+    cd can-utils
+    ./autogen.sh
+    ./configure && make && make install
 
+fi
 
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
