@@ -5,6 +5,47 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+
+
+clear
+echo "--------------------------------------------------------------------------------"
+echo ""
+echo "                        emPC-A/RPI driver installer  "
+echo ""
+echo "Minimum system requirements:"
+echo "- emPC-A/ARPI hardware version 1.1 or later"
+echo "- Kernel 3.18.12 or later"
+echo "- Internet connection (about 150MB will be downloaded)"
+echo "- 800MB free disk space"
+echo "These drivers will be compiled and installed:"
+echo "- CAN driver (SocketCAN)"
+echo "- Serial driver (RS232/RS485)"
+echo "These software components will be installed:"
+echo "- libncurses5-dev, gcc, lib, autoconf, libtool, libsocketcan, can-utils"
+echo "These configuration settings will automatically be made:"
+echo "- Install SocketCAN in auto start"
+echo "- Install RTC in auto start"
+echo "- Disable SWAP"
+echo "- Increase USB max. current"
+echo "- Enable I2C and SPI drivers"
+echo "- Set Green LED as SD card activity LED"
+echo "--------------------------------------------------------------------------------"
+echo ""
+echo "Import: create a backup copy of the system before starting this installation!"
+echo ""
+read -p "Continue installation (y/n)?" CONT
+if [ "$CONT" == "y" ] || [ "$CONT" == "j" ]; then
+        echo -n "starting installation in";
+        sleep 1 && echo -n " (3) "
+        sleep 1 && echo -n " (2) "
+        sleep 1 && echo -n " (1) "
+        echo ""
+else
+        echo "Info: installation canceled" 1>&2
+        exit 2
+fi
+
+
 # get installed gcc version
 GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 # get gcc version of installed kernel
@@ -38,6 +79,7 @@ wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /us
 
 rpi-source --skip-gcc
 cd /root/linux-*
+INSTALLDIR=$(pwd)
 
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
@@ -75,6 +117,15 @@ cp drivers/net/can/spi/mcp251x.ko /lib/modules/$KERNEL/kernel/drivers/net/can/sp
 cp drivers/tty/serial/sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
 
 depmod -a
+
+
+if [ ! -f "/lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko" ] || [ ! -f "/lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko" ]; then
+    echo "Error: Installation failed! (driver modules not installed)" 1>&2
+    exit 7
+fi
+
+rm -rf $INSTALLDIR
+rm -f $INSTALLDIR.tar.gz
 
 # installing service to start can0 on boot
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
@@ -187,6 +238,10 @@ fi
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
 
+
+
+
+echo
 echo
 echo "INFO: Installation completed! restart required!"
 echo
