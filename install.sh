@@ -5,20 +5,32 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+# get installed gcc version
+GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
+# get gcc version of installed kernel
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
 apt-get update
 apt-get -y install libncurses5-dev
 apt-get -y install gcc-$GCCVER g++-$GCCVER
 
-export CC=/usr/bin/gcc-$GCCVER
+if [ ! -f "/usr/bin/gcc-$GCCVER" ] || [ ! -f "/usr/bin/g++-$GCCVER" ]; then
+    echo "no such version gcc/g++ $GCCVER installed" 1>&2
+    exit 1
+fi
+
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCCVER 50
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCCVER 50
+
+update-alternatives --set gcc "/usr/bin/gcc-$GCCVER"
+update-alternatives --set g++ "/usr/bin/g++-$GCCVER"
 
 mkdir -p /home/pi/empc-arpi-linux-drivers
 cd /home/pi/empc-arpi-linux-drivers
 
 wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
 
-rpi-source
+rpi-source --skip-gcc
 cd /root/linux-*
 
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
@@ -154,6 +166,9 @@ cd can-utils
 ./configure && make && make install
 
 
+
+update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
+update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
 
 echo
 echo "INFO: Installation completed! restart required!"
