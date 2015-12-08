@@ -19,6 +19,12 @@ if [ ! -f "/usr/bin/gcc-$GCCVER" ] || [ ! -f "/usr/bin/g++-$GCCVER" ]; then
     exit 1
 fi
 
+update-alternatives --remove-all gcc 
+update-alternatives --remove-all g++
+
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCCVERBACKUP 10
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCCVERBACKUP 10
+
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCCVER 50
 update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCCVER 50
 
@@ -36,7 +42,7 @@ cd /root/linux-*
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/spi/spi-bcm2835.c -O drivers/spi/spi-bcm2835.c
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/net/can/spi/mcp251x.c -O drivers/net/can/mcp251x.c
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/net/can/spi/mcp251x.c -O drivers/net/can/spi/mcp251x.c
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/tty/serial/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
 
 if grep -q "sc16is7xx" "arch/arm/boot/dts/overlays/Makefile"; then
