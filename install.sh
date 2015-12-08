@@ -32,7 +32,8 @@ make SUBDIRS=drivers/spi modules
 
 KERNEL=$(uname -r)
 
-mkdir /lib/modules/$KERNEL/kernel/drivers/net/can/spi
+mkdir -p /lib/modules/$KERNEL/kernel/drivers/net/can/spi
+mkdir -p /lib/modules/$KERNEL/kernel/drivers/tty/serial
 
 cp arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dtb /boot/overlays/sc16is7xx-ttysc0-overlay.dtb
 cp arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dtb /boot/overlays/mcp2515-can0-overlay.dtb
