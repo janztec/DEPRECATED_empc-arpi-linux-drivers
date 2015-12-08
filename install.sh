@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $EUID -ne 0 ]; then
+    echo "This script should be run as root." > /dev/stderr
+    exit 1
+fi
+
 apt-get update
 apt-get -y install libncurses5-dev
 apt-get -y install gcc-4.8 g++-4.8
@@ -9,11 +14,10 @@ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20
 update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 20
 
-cd /home/pi
-mkdir empc-arpi-linux-drivers
-cd empc-arpi-linux-drivers
+mkdir -p /home/pi/empc-arpi-linux-drivers
+cd /home/pi/empc-arpi-linux-drivers
 
-sudo wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && sudo chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
+wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
 
 rpi-source
 cd /root/linux-*
@@ -24,6 +28,11 @@ wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/driver
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/net/can/spi/mcp251x.c -O drivers/net/can/mcp251x.c
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/tty/serial/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
 
+if grep -q "sc16is7xx" "arch/arm/boot/dts/overlays/Makefile"; then
+        echo ""
+else
+        echo "dtb-\$(RPI_DT_OVERLAYS) += sc16is7xx-ttysc0-overlay.dtb" >>arch/arm/boot/dts/overlays/Makefile
+fi
 
 make SUBDIRS=arch/arm/boot/dts/overlays modules
 make SUBDIRS=drivers/tty/serial modules
@@ -75,14 +84,14 @@ else
 fi
 
 
-
 if grep -q "ssh_host_dsa_key" "/etc/rc.local"; then
         echo ""
 else
         echo "INFO: Installating SSH key generation /etc/rc.local"
+        sed -i 's/exit 0//g' /etc/rc.local
         echo "test -f /etc/ssh/ssh_host_dsa_key || dpkg-reconfigure openssh-server" >>/etc/rc.local
+        echo "exit 0" >>/etc/rc.local
 fi
-
 
 if grep -q "mcp7940x 0x6f" "/etc/rc.local"; then
         echo ""
@@ -118,4 +127,29 @@ else
 fi
 
 
+echo ""
+echo "INFO: installing SocketCAN (libsocketcan) libraries and can-utils"
+echo ""
+
+cd /home/pi
+
+apt-get install autoconf
+apt-get install libtool
+
+wget http://www.pengutronix.de/software/libsocketcan/download/libsocketcan-0.0.10.tar.bz2
+tar xvjf libsocketcan-0.0.10.tar.bz2
+rm -rf libsocketcan-0.0.10.tar.bz2
+cd libsocketcan-0.0.10
+./configure && make && make install
+
+git clone https://github.com/linux-can/can-utils.git
+cd can-utils
+./autogen.sh
+./configure && make && make install
+
+
+
+echo
+echo "INFO: Installation completed! restart required!"
+echo
 
