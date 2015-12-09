@@ -34,7 +34,16 @@ Product page: https://www.janztec.com/en/empc-a-rpi.html
 Step1:
 Install latest RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
 
-Step2:
+Step 2:
+```
+apt-get update
+apt-get upgrade
+```
+
+Step 3:
+Reboot system
+
+Step4:
 ```
 sudo bash
 cd /home/pi
