@@ -2,7 +2,7 @@
 **Low Cost ARM Cortex-A7 Based Embedded Controller**
 
 Product page: https://www.janztec.com/en/empc-a-rpi.html
-![emPC-A/RPI](https://www.janztec.com/uploads/tx_templavoila/emPC-A_RPI_neu_642x480.jpg)
+![emPC-A/RPI](https://www.janztec.com/fileadmin/_processed_/csm_janztec_produkte_embedded_empc_a-pri_1_57fdb80040.jpg)
 
 **FEATURES emPC-A/RPI**
 * Processor 
@@ -43,7 +43,7 @@ apt-get upgrade
 Step 3:
 Reboot system
 
-Step4:
+Step 4:
 ```
 sudo bash
 cd /home/pi
