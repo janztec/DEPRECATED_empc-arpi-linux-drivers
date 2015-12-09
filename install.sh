@@ -5,7 +5,7 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
-
+KERNEL=$(uname -r)
 
 clear
 echo "--------------------------------------------------------------------------------"
@@ -14,7 +14,7 @@ echo "                        emPC-A/RPI driver installer  "
 echo ""
 echo "Minimum system requirements:"
 echo "- emPC-A/ARPI hardware version 1.1 or later"
-echo "- Kernel 3.18.12 or later"
+echo "- Kernel 3.18.16-v7+ or later (currently running: $KERNEL)"
 echo "- Internet connection (about 150MB will be downloaded)"
 echo "- 800MB free disk space"
 echo "These drivers will be compiled and installed:"
@@ -51,7 +51,7 @@ GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 # get gcc version of installed kernel
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
-apt-get update
+apt-get update -y
 apt-get -y install libncurses5-dev
 apt-get -y install gcc-$GCCVER g++-$GCCVER
 
@@ -110,6 +110,10 @@ KERNEL=$(uname -r)
 mkdir -p /lib/modules/$KERNEL/kernel/drivers/net/can/spi
 mkdir -p /lib/modules/$KERNEL/kernel/drivers/tty/serial
 
+rm -f /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
+rm -f /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
+rm -f /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
+
 cp arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dtb /boot/overlays/sc16is7xx-ttysc0-overlay.dtb
 cp arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dtb /boot/overlays/mcp2515-can0-overlay.dtb
 cp drivers/spi/spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
@@ -127,9 +131,14 @@ fi
 rm -rf $INSTALLDIR
 rm -f $INSTALLDIR.tar.gz
 
+
 # installing service to start can0 on boot
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
-systemctl enable can0.service
+if [ ! -f "/bin/systemctl" ]; then
+    echo "Warning: systemctl not found, cannot install can0.service" 1>&2
+else
+    wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
+    systemctl enable can0.service
+fi
 
 
 if grep -q "spi-bcm2835" "/boot/config.txt"; then
