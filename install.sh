@@ -46,6 +46,8 @@ else
 fi
 
 
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion.txt -O /root/imageversion.txt
+
 # get installed gcc version
 GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 # get gcc version of installed kernel
