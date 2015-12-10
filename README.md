@@ -26,7 +26,8 @@ bash install.sh
 ```
 
 
-Product page: https://www.janztec.com/en/empc-a-rpi.html
+## Product page
+https://www.janztec.com/en/empc-a-rpi.html
 ![emPC-A/RPI](https://www.janztec.com/fileadmin/_processed_/csm_janztec_produkte_embedded_empc_a-pri_1_57fdb80040.jpg)
 
 **FEATURES emPC-A/RPI**
