@@ -1,6 +1,31 @@
 # emPC-A/RPI by Janz Tec AG
 **Low Cost ARM Cortex-A7 Based Embedded Controller**
 
+## Installation Instructions:
+
+Step1:
+
+Install latest RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
+
+Step 2:
+```
+apt-get update
+apt-get upgrade
+```
+
+Step 3:
+
+Reboot system
+
+Step 4:
+```
+sudo bash
+cd /home/pi
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh
+bash install.sh
+```
+
+
 Product page: https://www.janztec.com/en/empc-a-rpi.html
 ![emPC-A/RPI](https://www.janztec.com/fileadmin/_processed_/csm_janztec_produkte_embedded_empc_a-pri_1_57fdb80040.jpg)
 
@@ -29,27 +54,7 @@ Product page: https://www.janztec.com/en/empc-a-rpi.html
   * Input 9 … 32 VDC 
 
 
-## Installation Instructions:
 
-Step1:
-Install latest RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
-
-Step 2:
-```
-apt-get update
-apt-get upgrade
-```
-
-Step 3:
-Reboot system
-
-Step 4:
-```
-sudo bash
-cd /home/pi
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh
-bash install.sh
-```
 
 
 
