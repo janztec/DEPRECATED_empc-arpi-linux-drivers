@@ -5,6 +5,7 @@ IMG-LX017 v3x0
                 - original "Raspbian Jessie Lite" installation (2015-11-21)
                 - download: https://www.raspberrypi.org/downloads/raspbian/ 
                 - non-free packages removed (firmware-atheros, firmware-brcm80211, firmware-libertas, firmware-ralink, firmware-realtek)
+
         - Driver package
                 - script based driver & configuration installer
                 - download: https://github.com/janztec/empc-arpi-linux-drivers/blob/master/install.sh
