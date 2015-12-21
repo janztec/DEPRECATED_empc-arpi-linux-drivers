@@ -5,6 +5,13 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+
+FREE=`df -H | grep -E '^/dev/root' | awk '{ print $4 }' | cut -d'G' -f1 | awk -F '.' '{ print $1 }'`
+if [[ $FREE -lt 1 ]]; then
+  echo "Error: 1GB disk space required" > /dev/stderr
+  exit 1
+fi
+
 KERNEL=$(uname -r)
 
 clear
@@ -16,7 +23,7 @@ echo "Minimum system requirements:"
 echo "- emPC-A/ARPI hardware version 1.1 or later"
 echo "- Kernel 3.18.16-v7+ or later (currently running: $KERNEL)"
 echo "- Internet connection (about 150MB will be downloaded)"
-echo "- 800MB free disk space"
+echo "- 1GB free disk space"
 echo "These drivers will be compiled and installed:"
 echo "- CAN driver (SocketCAN)"
 echo "- Serial driver (RS232/RS485)"
