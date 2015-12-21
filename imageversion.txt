@@ -1,6 +1,11 @@
 latest release:
 
 IMG-LX017 v3x0
+        - OS
+                - Now based on "Raspbian Jessie Lite" (2015-11-21)
+                - Download https://www.raspberrypi.org/downloads/raspbian/ 
+                - Non-free packages removed (firmware-atheros, firmware-brcm80211, firmware-libertas, firmware-ralink, firmware-realtek)
+                
         - CAN driver
                 - updated driver hw_reset timeout value for better soft-reboot CAN detection
 
