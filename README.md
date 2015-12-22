@@ -7,6 +7,8 @@ Step1:
 
 Install latest RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
 
+(Raspbian Jessie, or Raspbian Jessie Lite recommended)
+
 Step 2:
 ```
 apt-get update
@@ -24,7 +26,6 @@ cd /home/pi
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh
 bash install.sh
 ```
-
 
 ## Product page
 https://www.janztec.com/en/empc-a-rpi.html
