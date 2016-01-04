@@ -11,10 +11,10 @@ EnvironmentFile=-/etc/default/hwclock
 ExecStartPre=/bin/bash -c '/bin/echo mcp7940x 0x6f > /sys/class/i2c-adapter/i2c-1/new_device'
 ExecStart=/sbin/hwclock --hctosys
 ExecStop=/sbin/hwclock --systohc -D --noadjfile --utc
-RemainAfterExit=yes
 Restart=on-failure
 RestartSec=1s
-RestartForceExitStatus=70
+StartLimitInterval=10
+StartLimitBurst=10
 
 [Install]
 WantedBy=sysinit.target
