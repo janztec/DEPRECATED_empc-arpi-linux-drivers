@@ -4,7 +4,7 @@ DefaultDependencies=no
 Requires=systemd-modules-load.service
 After=systemd-modules-load.service
 Before=sysvinit.target
-ConditionPathExists=/sys/class/i2c-adapter
+ConditionPathExists=/sys/class/i2c-adapter/i2c-1
 Conflicts=shutdown.target
 
 [Service]
