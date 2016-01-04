@@ -14,6 +14,7 @@ ExecStop=/sbin/hwclock --systohc -D --noadjfile --utc
 RemainAfterExit=yes
 Restart=on-failure
 RestartSec=1s
+RestartForceExitStatus=70
 
 [Install]
 WantedBy=sysinit.target
