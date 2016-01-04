@@ -4,16 +4,16 @@ DefaultDependencies=no
 Requires=systemd-modules-load.service
 After=systemd-modules-load.service
 Before=sysvinit.target
-ConditionPathExists=/sys/class/i2c-adapter/i2c-1
 Conflicts=shutdown.target
 
 [Service]
-EnvironmentFile=-/etc/default/fake-hwclock
+EnvironmentFile=-/etc/default/hwclock
 ExecStartPre=/bin/bash -c '/bin/echo mcp7940x 0x6f > /sys/class/i2c-adapter/i2c-1/new_device'
 ExecStart=/sbin/hwclock --hctosys
 ExecStop=/sbin/hwclock --systohc -D --noadjfile --utc
-Type=oneshot
 RemainAfterExit=yes
+Restart=on-failure
+RestartSec=1s
 
 [Install]
 WantedBy=sysinit.target
