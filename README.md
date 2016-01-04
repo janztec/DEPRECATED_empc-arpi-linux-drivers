@@ -23,7 +23,7 @@ Step 4:
 ```
 sudo bash
 cd /home/pi
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh -O /home/pi/install.sh
 bash install.sh
 ```
 
