@@ -7,6 +7,7 @@ Conflicts=shutdown.target
 
 [Service]
 EnvironmentFile=-/etc/default/fake-hwclock
+ExecStartPre=/bin/echo "mcp7940x 0x6f" > /sys/class/i2c-adapter/i2c-1/new_device
 ExecStart=/sbin/hwclock --hctosys
 ExecStop=/sbin/hwclock --systohc -D --noadjfile --utc
 Type=oneshot
