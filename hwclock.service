@@ -1,8 +1,10 @@
 [Unit]
-Description=Restore / save the current hw clock
-Documentation=man:hwclock(8)
+Description=restore / save the current hw clock
 DefaultDependencies=no
-Before=sysinit.target
+Requires=systemd-modules-load.service
+After=systemd-modules-load.service
+Before=sysvinit.target
+ConditionPathExists=/sys/class/i2c-adapter
 Conflicts=shutdown.target
 
 [Service]
