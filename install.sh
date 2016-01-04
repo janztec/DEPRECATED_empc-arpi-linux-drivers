@@ -96,6 +96,7 @@ wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/driver
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/net/can/spi/mcp251x.c -O drivers/net/can/spi/mcp251x.c
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/tty/serial/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
 
+
 if grep -q "sc16is7xx" "arch/arm/boot/dts/overlays/Makefile"; then
         echo ""
 else
@@ -162,6 +163,7 @@ else
         echo "dtoverlay=mcp2515-can0-overlay,oscillator=16000000,interrupt=25" >>/boot/config.txt
         echo "dtoverlay=spi-bcm2835-overlay" >>/boot/config.txt
         echo "dtoverlay=sc16is7xx-ttysc0-overlay" >>/boot/config.txt
+        echo "dtoverlay=sdhost" >>/boot/config.txt
 fi
 
 if grep -q "sc16is7xx" "/etc/modules"; then
@@ -191,14 +193,34 @@ else
         echo "exit 0" >>/etc/rc.local
 fi
 
-if grep -q "mcp7940x 0x6f" "/etc/rc.local"; then
+
+echo "INFO: Installating RTC hardware clock"
+# disable fake clock (systemd)
+systemctl disable fake-hwclock
+
+# disable fake clock (init.d)
+service fake-hwclock stop
+apt-get -y remove fake-hwclock
+rm -f /etc/cron.hourly/fake-hwclock
+rm -f /etc/init.d/fake-hwclock
+update-rc.d fake-hwclock remove
+
+
+# enable hwclock (systemd)
+rm -f /lib/systemd/system/hwclock.service
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/hwclock.service -O /lib/systemd/system/hwclock.service
+systemctl enable hwclock
+
+# init hwclock (init.d)
+if grep -q "mcp7940x 0x6f" "/etc/init.d/hwclock.sh"; then
         echo ""
 else
-        echo "INFO: Installating RTC auto start into /etc/rc.local"
-        sed -i 's/exit 0//g' /etc/rc.local
-        echo "echo mcp7940x 0x6f > /sys/class/i2c-adapter/i2c-1/new_device" >>/etc/rc.local
-        echo "exit 0" >>/etc/rc.local
+    sed -i 's/unset TZ/echo mcp7940x 0x6f > \/sys\/class\/i2c-adapter\/i2c-1\/new_device/g' /etc/init.d/hwclock.sh
 fi
+update-rc.d hwclock.sh enable
+
+
+
 
 if grep -q "max_usb_current=1" "/boot/config.txt"; then
         echo ""
