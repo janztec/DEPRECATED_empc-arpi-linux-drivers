@@ -6,8 +6,8 @@ if [ $EUID -ne 0 ]; then
 fi
 
 
-FREE=`df -H | grep -E '^/dev/root' | awk '{ print $4 }' | cut -d'G' -f1 | awk -F '.' '{ print $1 }'`
-if [[ $FREE -lt 1 ]]; then
+FREE=`df $PWD | awk '/[0-9]%/{print $(NF-2)}'`
+if [[ $FREE -lt 1048576 ]]; then
   echo "Error: 1GB disk space required" > /dev/stderr
   exit 1
 fi
@@ -197,6 +197,7 @@ fi
 echo "INFO: Installating RTC hardware clock"
 # disable fake clock (systemd)
 systemctl disable fake-hwclock
+systemctl mask fake-hwclock
 
 # disable fake clock (init.d)
 service fake-hwclock stop
@@ -209,7 +210,8 @@ update-rc.d fake-hwclock remove
 # enable hwclock (systemd)
 rm -f /lib/systemd/system/hwclock.service
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/hwclock.service -O /lib/systemd/system/hwclock.service
-systemctl enable hwclock
+systemctl unmask hwclock
+systemctl reenable hwclock
 
 # init hwclock (init.d)
 if grep -q "mcp7940x 0x6f" "/etc/init.d/hwclock.sh"; then
