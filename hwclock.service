@@ -8,13 +8,11 @@ Conflicts=shutdown.target
 
 [Service]
 EnvironmentFile=-/etc/default/hwclock
-ExecStartPre=/bin/bash -c '/bin/echo mcp7940x 0x6f > /sys/class/i2c-adapter/i2c-1/new_device'
-ExecStart=/sbin/hwclock --hctosys
-ExecStop=/sbin/hwclock --systohc -D --noadjfile --utc
+ExecStart=/bin/bash -c '/usr/bin/test -d /sys/class/i2c-adapter/i2c-1 && sleep 2 && /bin/echo mcp7940x 0x6f > /sys/class/i2c-adapter/i2c-1/new_device && /bin/sleep 2 && /sbin/hwclock --hctosys'
 Restart=on-failure
 RestartSec=1s
-StartLimitInterval=10
-StartLimitBurst=10
+StartLimitInterval=600
+StartLimitBurst=60
 
 [Install]
 WantedBy=sysinit.target
