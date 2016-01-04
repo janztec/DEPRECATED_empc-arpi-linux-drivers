@@ -1,5 +1,5 @@
 [Unit]
-Description=restore / save the current hw clock
+Description=restore current hw clock on boot
 DefaultDependencies=no
 Requires=systemd-modules-load.service
 After=systemd-modules-load.service
