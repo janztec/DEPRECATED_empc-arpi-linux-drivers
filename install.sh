@@ -163,6 +163,13 @@ else
         echo "dtoverlay=mcp2515-can0-overlay,oscillator=16000000,interrupt=25" >>/boot/config.txt
         echo "dtoverlay=spi-bcm2835-overlay" >>/boot/config.txt
         echo "dtoverlay=sc16is7xx-ttysc0-overlay" >>/boot/config.txt
+fi
+
+if grep -q "sdhost" "/boot/config.txt"; then
+        echo ""
+else
+        echo "INFO: Enabling sdhost in /boot/config.txt"
+        echo "" >>/boot/config.txt
         echo "dtoverlay=sdhost" >>/boot/config.txt
 fi
 
