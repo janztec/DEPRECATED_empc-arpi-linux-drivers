@@ -20,7 +20,7 @@ fi
 echo "INFO: installing rts_set_baud.sh"
 
 echo "#!/bin/sh" >/root/rts_set_baud.sh
-echo "BITRATE=`expr $2 \\* 1000`" >>/root/rts_set_baud.sh
+echo "BITRATE=\`expr \$2 \\* 1000\`" >>/root/rts_set_baud.sh
 echo "ifconfig can0 down">>/root/rts_set_baud.sh
 echo "sleep 1">>/root/rts_set_baud.sh
 echo "/sbin/ip link set can0 type can bitrate $BITRATE triple-sampling on">>/root/rts_set_baud.sh
