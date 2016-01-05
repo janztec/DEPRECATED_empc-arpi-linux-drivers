@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $EUID -ne 0 ]; then
+    echo "This script should be run as root." > /dev/stderr
+    exit 1
+fi
+
 echo "INFO: configuring COMPORT1 to /dev/ttySC0"
 
 echo "" >>/etc/CODESYSControl.cfg
@@ -17,6 +22,7 @@ echo "sleep 1">>/root/rts_set_baud.sh
 echo "/sbin/ip link set can0 type can bitrate $BITRATE triple-sampling on">>/root/rts_set_baud.sh
 echo "/sbin/ifconfig can0 txqueuelen 1000">>/root/rts_set_baud.sh
 echo "/sbin/ifconfig can0 up">>/root/rts_set_baud.sh
+chmod 755 /root/rts_set_baud.sh
 
 echo "INFO: disabling i2c and spi modules in /etc/modules"
 sed -i 's/spi-bcm2708/#spi-bcm2708/g' /etc/modules
