@@ -8,7 +8,7 @@ fi
 
 FREE=`df $PWD | awk '/[0-9]%/{print $(NF-2)}'`
 if [[ $FREE -lt 1048576 ]]; then
-  echo "Error: 1GB disk space required" > /dev/stderr
+  echo "Error: 1GB disk space required (run raspi-config, 'Expand Filesystem')" > /dev/stderr
   exit 1
 fi
 
@@ -17,9 +17,9 @@ KERNEL=$(uname -r)
 clear
 echo "--------------------------------------------------------------------------------"
 echo ""
-echo "                        emPC-A/RPI driver installer  "
+echo "                   Janz Tec AG emPC-A/RPI driver installer  "
 echo ""
-echo "Minimum system requirements:"
+echo "Minimum installation requirements:"
 echo "- emPC-A/ARPI hardware version 1.1 or later"
 echo "- Kernel 3.18.16-v7+ or later (currently running: $KERNEL)"
 echo "- Internet connection (about 150MB will be downloaded)"
@@ -30,15 +30,15 @@ echo "- Serial driver (RS232/RS485)"
 echo "These software components will be installed:"
 echo "- libncurses5-dev, gcc, lib, autoconf, libtool, libsocketcan, can-utils"
 echo "These configuration settings will automatically be made:"
-echo "- Install SocketCAN in auto start"
-echo "- Install RTC in auto start"
+echo "- Install SocketCAN initialization as service"
+echo "- Install RTC initialization as service"
 echo "- Disable SWAP"
 echo "- Increase USB max. current"
 echo "- Enable I2C and SPI drivers"
 echo "- Set Green LED as SD card activity LED"
 echo "--------------------------------------------------------------------------------"
 echo ""
-echo "Import: create a backup copy of the system before starting this installation!"
+echo "Important: Create a backup copy of the system before starting this installation!"
 echo ""
 read -p "Continue installation (y/n)?" CONT
 if [ "$CONT" == "y" ] || [ "$CONT" == "j" ]; then
