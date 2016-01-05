@@ -5,12 +5,16 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
-echo "INFO: configuring COMPORT1 to /dev/ttySC0"
+if grep -q "ttySC" "/etc/CODESYSControl.cfg"; then
+        echo ""
+else
+    echo "INFO: configuring COMPORT1 to /dev/ttySC0"
 
-echo "" >>/etc/CODESYSControl.cfg
-echo "[SysCom]" >>/etc/CODESYSControl.cfg
-echo "Linux.Devicefile=/dev/ttySC" >>/etc/CODESYSControl.cfg
-echo "portnum := COM.SysCom.SYS_COMPORT1;" >>/etc/CODESYSControl.cfg
+    echo "" >>/etc/CODESYSControl.cfg
+    echo "[SysCom]" >>/etc/CODESYSControl.cfg
+    echo "Linux.Devicefile=/dev/ttySC" >>/etc/CODESYSControl.cfg
+    echo "portnum := COM.SysCom.SYS_COMPORT1;" >>/etc/CODESYSControl.cfg
+fi    
 
 
 echo "INFO: installing rts_set_baud.sh"
