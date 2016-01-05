@@ -288,7 +288,13 @@ update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
 
 
-
+if [ ! -f "/etc/CODESYSControl.cfg" ]; then
+    echo ""
+else    
+    echo "INFO: CODESYS installation found"
+    wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/codesys.sh -O /home/pi/codesys.sh
+    bash /home/pi/codesys.sh
+fi
 
 echo
 echo
