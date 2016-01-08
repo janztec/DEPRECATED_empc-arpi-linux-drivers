@@ -1,5 +1,12 @@
 latest release:
 
+IMG-LX017 v3x1
+        - RTC driver
+                - updated startup script to set system time from RTC
+
+older releases:
+------------------------------------------------------------------------------------------------------------------------
+
 IMG-LX017 v3x0
         - OS
                 - original "Raspbian Jessie Lite" installation (2015-11-21)
@@ -12,9 +19,6 @@ IMG-LX017 v3x0
         
         - CAN driver
                 - updated driver hw_reset timeout value for better soft-reboot CAN detection
-
-older releases:
-------------------------------------------------------------------------------------------------------------------------
 
 IMG-LX017 v2x5
         - UART driver
