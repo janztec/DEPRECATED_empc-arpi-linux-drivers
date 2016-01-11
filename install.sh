@@ -202,6 +202,7 @@ fi
 
 
 echo "INFO: Installating RTC hardware clock"
+apt-get -y install i2c-tools
 # disable fake clock (systemd)
 systemctl disable fake-hwclock
 systemctl mask fake-hwclock
