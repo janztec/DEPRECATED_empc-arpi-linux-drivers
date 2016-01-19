@@ -8,7 +8,7 @@ fi
 
 FREE=`df $PWD | awk '/[0-9]%/{print $(NF-2)}'`
 if [[ $FREE -lt 1048576 ]]; then
-  echo "Error: 1GB disk space required (run raspi-config, 'Expand Filesystem')" > /dev/stderr
+  echo "Error: 1GB free disk space required (run raspi-config, 'Expand Filesystem')" > /dev/stderr
   exit 1
 fi
 
