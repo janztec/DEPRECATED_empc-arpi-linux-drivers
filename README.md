@@ -7,11 +7,12 @@ Step1:
 
 Install latest RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
 
-(Raspbian Jessie, or Raspbian Jessie Lite recommended)
+(Raspbian Jessie Lite, or Raspbian Jessie recommended. NOOBS Installation **not** supported)
 
 Step 2:
 ```
 apt-get update
+
 apt-get upgrade
 ```
 
@@ -22,14 +23,17 @@ Reboot system
 Step 4:
 ```
 sudo bash
+
 cd /home/pi
+
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh -O /home/pi/install.sh
+
 bash install.sh
 ```
 
 ## Product page
 https://www.janztec.com/en/empc-a-rpi.html
-![emPC-A/RPI](https://www.janztec.com/fileadmin/_processed_/csm_janztec_produkte_embedded_empc_a-pri_1_57fdb80040.jpg)
+![emPC-A/RPI](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emPC-A-RPI/janztec_produkte_embedded_emPC_RPI_raspberry_front.jpg)
 
 **FEATURES emPC-A/RPI**
 * Processor 
