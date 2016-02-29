@@ -34,6 +34,7 @@ bash install.sh
 ## Product page
 https://www.janztec.com/en/empc-a-rpi.html
 ![emPC-A/RPI](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emPC-A-RPI/janztec_produkte_embedded_emPC_RPI_raspberry_front.jpg)
+
 **FEATURES emPC-A/RPI**
 * Processor 
   * Based on Raspberry Pi 2, Model B 
@@ -57,7 +58,7 @@ https://www.janztec.com/en/empc-a-rpi.html
     * 4 x digital outputs (12, 24VDC)  
 * Power Supply  
   * Input 9 … 32 VDC 
-* DIN rail, or wall mounting  
+* DIN rail, wall mounting or desktop 
 
 
 
