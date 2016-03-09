@@ -90,7 +90,7 @@ if [ ! -f "/home/pi/rpi-$KERNELMAJMIN.y_rebase.zip" ]; then
     wget https://github.com/raspberrypi/linux/archive/rpi-$KERNELMAJMIN.y_rebase.zip -O /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
     unzip /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
 fi
-cd /home/pi/linux_rpi-$KERNELMAJMIN.y_rebase
+cd /home/pi/linux-rpi-$KERNELMAJMIN.y_rebase
 
 #rpi-source --skip-gcc
 #cd /home/pi/linux-*
