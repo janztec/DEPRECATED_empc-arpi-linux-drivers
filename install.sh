@@ -93,8 +93,10 @@ fi
 cd /home/pi/linux-rpi-$KERNELMAJMIN.y_rebase
 INSTALLDIR=$(pwd)
 
-modprobe configs
-zcat /proc/config.gz >.config
+#modprobe configs
+#zcat /proc/config.gz >.config
+#make modules_prepare
+make bcm2709_defconfig
 make modules_prepare
 
 #rpi-source --skip-gcc
@@ -148,7 +150,7 @@ if [ ! -f "/lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko" ] || [ ! 
     exit 7
 fi
 
-rm -rf $INSTALLDIR
+#rm -rf $INSTALLDIR
 #rm -f $INSTALLDIR.tar.gz
 
 
