@@ -81,16 +81,22 @@ update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCCVER 50
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVER"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVER"
 
-mkdir -p /home/pi/empc-arpi-linux-drivers
-cd /home/pi/empc-arpi-linux-drivers
+mkdir -p /home/pi/empc-arpi-linux
+cd /home/pi/empc-arpi-linux
 
 #wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
-KERNELMAJMIN=$(uname -r | awk -F'.' '{print $1 "." $2}')
-if [ ! -f "/home/pi/rpi-$KERNELMAJMIN.y_rebase.zip" ]; then
-    wget https://github.com/raspberrypi/linux/archive/rpi-$KERNELMAJMIN.y_rebase.zip -O /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
-    unzip /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
-fi
-cd /home/pi/linux-rpi-$KERNELMAJMIN.y_rebase
+#KERNELMAJMIN=$(uname -r | awk -F'.' '{print $1 "." $2}')
+#if [ ! -f "/home/pi/rpi-$KERNELMAJMIN.y_rebase.zip" ]; then
+#    wget https://github.com/raspberrypi/linux/archive/rpi-$KERNELMAJMIN.y_rebase.zip -O /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
+#    unzip /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
+#fi
+#cd /home/pi/linux-rpi-$KERNELMAJMIN.y_rebase
+
+KERNEL_HASH=$(wget https://raw.githubusercontent.com/raspberrypi/firmware/master/extra/git_hash -O -)
+wget https://github.com/raspberrypi/linux/archive/$KERNEL_HASH.tar.gz -O $KERNEL_HASH.tar.gz
+
+tar -xzvf $KERNEL_HASH.tar.gz
+
 INSTALLDIR=$(pwd)
 
 #modprobe configs
