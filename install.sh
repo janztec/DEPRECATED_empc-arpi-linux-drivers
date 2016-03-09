@@ -91,10 +91,14 @@ if [ ! -f "/home/pi/rpi-$KERNELMAJMIN.y_rebase.zip" ]; then
     unzip /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
 fi
 cd /home/pi/linux-rpi-$KERNELMAJMIN.y_rebase
+INSTALLDIR=$(pwd)
+
+modprobe configs
+zcat /proc/config.gz >.config
+make modules_prepare
 
 #rpi-source --skip-gcc
 #cd /home/pi/linux-*
-INSTALLDIR=$(pwd)
 
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
@@ -145,7 +149,7 @@ if [ ! -f "/lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko" ] || [ ! 
 fi
 
 rm -rf $INSTALLDIR
-rm -f $INSTALLDIR.tar.gz
+#rm -f $INSTALLDIR.tar.gz
 
 
 # installing service to start can0 on boot
