@@ -84,10 +84,16 @@ update-alternatives --set g++ "/usr/bin/g++-$GCCVER"
 mkdir -p /home/pi/empc-arpi-linux-drivers
 cd /home/pi/empc-arpi-linux-drivers
 
-wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
+#wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
+KERNELMAJMIN=$(uname -r | awk -F'.' '{print $1 "." $2}')
+if [ ! -f "/home/pi/rpi-$KERNELMAJMIN.y_rebase.zip" ]; then
+    wget https://github.com/raspberrypi/linux/archive/rpi-$KERNELMAJMIN.y_rebase.zip -O /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
+    unzip /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
+fi
+cd /home/pi/linux_rpi-$KERNELMAJMIN.y_rebase
 
-rpi-source --skip-gcc
-cd /root/linux-*
+#rpi-source --skip-gcc
+#cd /home/pi/linux-*
 INSTALLDIR=$(pwd)
 
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
