@@ -105,16 +105,25 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >links.txt
         
         link=""
+        matchedlink="err"
         while read link; do
           echo "INFO: downloading: $link"
           if wget -nv "https://github.com$link" -O - | grep module_layout | grep $LAYOUT; then
             echo "INFO: found matching revision!"
+            matchedlink=$(echo "$link")
             break
           fi
         done <links.txt
         rm -f links.txt
         
-        fwhash=$(echo $link | cut -d/ -f 5)
+        if [ "$matchedlink" = "err" ]; then
+            echo 
+            echo "ERROR: unable to find matching firmware "
+            echo
+            exit 3
+        fi
+        
+        fwhash=$(echo $matchedlink | cut -d/ -f 5)
         
         echo
         echo "firmware hash: $fwhash"
