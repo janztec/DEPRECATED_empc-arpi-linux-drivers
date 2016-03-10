@@ -89,12 +89,24 @@ apt-get install -y pv
 
 if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         rm -rf raspberrypi-linux-*
-        fwhash=`zcat /usr/share/doc/raspberrypi-bootloader/changelog.Debian.gz | grep '* firmware as of' | head -n 1 | sed  -e 's/\  \*\ firmware as of \(.*\)$/\1/'`
+
+        LAYOUT=$(modprobe --dump-modversions /lib/modules/$KERNEL/kernel/drivers/net/dummy.ko | grep module_layout | awk '{print $1}')
+        echo "INFO: Module layout: $LAYOUT"
         
-        if [ "$fwhash" = "abf7e13cf4b867b8341c53e2720a118761d6fc27" ]; then
-            echo "WARN: wrong hash code in changelog"
-            fwhash="18971a9d261bd1a0298cd3a11124b31b1e326c3a"
-        fi
+        cd /tmp/
+        wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >links.txt
+        
+        link=""
+        while read link; do
+          echo "INFO: downloading: $link"
+          if wget -nv "https://github.com$link" -O - | grep $LAYOUT; then
+            echo "INFO: found matching revision!"
+            break
+          fi
+        done <links.txt
+        rm -f links.txt
+        
+        fwhash=$(echo $link | cut -d/ -f 5)
         
         echo
         echo "firmware hash: $fwhash"
