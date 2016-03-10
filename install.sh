@@ -84,29 +84,40 @@ update-alternatives --set g++ "/usr/bin/g++-$GCCVER"
 mkdir -p /home/pi/empc-arpi-linux
 cd /home/pi/empc-arpi-linux
 
-#wget https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source -O /usr/bin/rpi-source && chmod +x /usr/bin/rpi-source && /usr/bin/rpi-source -q --tag-update
-#KERNELMAJMIN=$(uname -r | awk -F'.' '{print $1 "." $2}')
-#if [ ! -f "/home/pi/rpi-$KERNELMAJMIN.y_rebase.zip" ]; then
-#    wget https://github.com/raspberrypi/linux/archive/rpi-$KERNELMAJMIN.y_rebase.zip -O /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
-#    unzip /home/pi/rpi-$KERNELMAJMIN.y_rebase.zip
-#fi
-#cd /home/pi/linux-rpi-$KERNELMAJMIN.y_rebase
+modprobe configs
+apt-get install -y pv
 
-KERNEL_HASH=$(wget https://raw.githubusercontent.com/raspberrypi/firmware/master/extra/git_hash -O -)
-wget https://github.com/raspberrypi/linux/archive/$KERNEL_HASH.tar.gz -O $KERNEL_HASH.tar.gz
+if [ ! -f "linux-$KERNEL.tar.gz" ]; then
+        rm -rf raspberrypi-linux-*
+        fwhash=`zcat /usr/share/doc/raspberrypi-bootloader/changelog.Debian.gz | grep '* firmware as of' | head -n 1 | sed  -e 's/\  \*\ firmware as of \(.*\)$/\1/'`
+        
+        if [ "$fwhash" = "abf7e13cf4b867b8341c53e2720a118761d6fc27" ]; then
+            echo "WARN: wrong hash code in changelog"
+            fwhash="18971a9d261bd1a0298cd3a11124b31b1e326c3a"
+        fi
+        
+        echo
+        echo "firmware hash: $fwhash"
+        echo
+        
+        kernhash=$(wget -qO- https://raw.github.com/raspberrypi/firmware/$fwhash/extra/git_hash -O -)
+        wget https://github.com/raspberrypi/linux/tarball/$kernhash -O linux-$KERNEL.tar.gz
 
-tar -xzvf $KERNEL_HASH.tar.gz
+        echo "extracting kernel sources.."
+        pv linux-$KERNEL.tar.gz | tar xzf -
+
+        cd raspberrypi-linux-*        
+        wget https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
+        zcat /proc/config.gz > .config
+else
+    cd raspberrypi-linux-*
+fi
+
 
 INSTALLDIR=$(pwd)
 
-#modprobe configs
-#zcat /proc/config.gz >.config
-#make modules_prepare
-make bcm2709_defconfig
+make oldconfig
 make modules_prepare
-
-#rpi-source --skip-gcc
-#cd /home/pi/linux-*
 
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
@@ -315,7 +326,11 @@ else
     bash /home/pi/codesys.sh
 fi
 
+# clean up
+rm -rf /home/pi/empc-arpi-linux
+
 echo
+echo "-----------------------------------------------"
 echo
 echo "INFO: Installation completed! restart required!"
 echo
