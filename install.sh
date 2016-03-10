@@ -5,6 +5,15 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+YEAR=$[`date +'%Y'`]
+if [ $YEAR -le 2015 ] ; then
+        echo "ERROR: invalid date. set current date and time!";
+        exit 2
+fi
+if [ $YEAR -ge 2023 ] ; then
+        echo "ERROR: invalid date. set current date and time!";
+        exit 2
+fi
 
 FREE=`df $PWD | awk '/[0-9]%/{print $(NF-2)}'`
 if [[ $FREE -lt 1048576 ]]; then
