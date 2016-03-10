@@ -98,7 +98,7 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         link=""
         while read link; do
           echo "INFO: downloading: $link"
-          if wget -nv "https://github.com$link" -O - | grep $LAYOUT; then
+          if wget -nv "https://github.com$link" -O - | grep module_layout | grep $LAYOUT; then
             echo "INFO: found matching revision!"
             break
           fi
