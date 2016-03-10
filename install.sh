@@ -92,8 +92,7 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
 
         LAYOUT=$(modprobe --dump-modversions /lib/modules/$KERNEL/kernel/drivers/net/dummy.ko | grep module_layout | awk '{print $1}')
         echo "INFO: Module layout: $LAYOUT"
-        
-        cd /tmp/
+       
         wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >links.txt
         
         link=""
