@@ -118,7 +118,7 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         pv linux-$KERNEL.tar.gz | tar xzf -
 
         cd raspberrypi-linux-*        
-        wget https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
+        wget -nv https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
         zcat /proc/config.gz > .config
 else
     cd raspberrypi-linux-*
@@ -130,11 +130,11 @@ INSTALLDIR=$(pwd)
 make oldconfig
 make modules_prepare
 
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/spi/spi-bcm2835.c -O drivers/spi/spi-bcm2835.c
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/net/can/spi/mcp251x.c -O drivers/net/can/spi/mcp251x.c
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/tty/serial/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/spi/spi-bcm2835.c -O drivers/spi/spi-bcm2835.c
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/net/can/spi/mcp251x.c -O drivers/net/can/spi/mcp251x.c
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/drivers/tty/serial/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
 
 
 if grep -q "sc16is7xx" "arch/arm/boot/dts/overlays/Makefile"; then
@@ -186,7 +186,7 @@ fi
 if [ ! -f "/bin/systemctl" ]; then
     echo "Warning: systemctl not found, cannot install can0.service" 1>&2
 else
-    wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
+    wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
     systemctl enable can0.service
 fi
 
@@ -257,7 +257,7 @@ update-rc.d fake-hwclock remove
 
 # enable hwclock (systemd)
 rm -f /lib/systemd/system/hwclock.service
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/hwclock.service -O /lib/systemd/system/hwclock.service
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/hwclock.service -O /lib/systemd/system/hwclock.service
 systemctl unmask hwclock
 systemctl reenable hwclock
 
@@ -333,7 +333,7 @@ if [ ! -f "/etc/CODESYSControl.cfg" ]; then
     echo ""
 else    
     echo "INFO: CODESYS installation found"
-    wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/codesys.sh -O /home/pi/codesys.sh
+    wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/codesys.sh -O /home/pi/codesys.sh
     bash /home/pi/codesys.sh
 fi
 
