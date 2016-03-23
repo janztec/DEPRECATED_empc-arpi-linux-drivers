@@ -12,15 +12,9 @@ Install latest RASPBIAN operating system from https://www.raspberrypi.org/downlo
 Step 2:
 ```
 apt-get update
-
-apt-get upgrade
 ```
 
 Step 3:
-
-Reboot system
-
-Step 4:
 ```
 sudo bash
 
