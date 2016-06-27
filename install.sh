@@ -69,7 +69,7 @@ GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
 apt-get update -y
-apt-get -y install libncurses5-dev
+apt-get -y install libncurses5-dev bc
 apt-get -y install gcc-$GCCVER g++-$GCCVER
 
 if [ ! -f "/usr/bin/gcc-$GCCVER" ] || [ ! -f "/usr/bin/g++-$GCCVER" ]; then
@@ -157,7 +157,12 @@ wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/dr
 if grep -q "sc16is7xx" "arch/arm/boot/dts/overlays/Makefile"; then
         echo ""
 else
-        sed -i 's/mcp2515-can1-overlay/sc16is7xx-ttysc0-overlay/g' arch/arm/boot/dts/overlays/Makefile
+        if grep -q ".dtbo" "arch/arm/boot/dts/overlays/Makefile"; then
+            # starting with kernel 4.4.xxx use dtbo files
+            sed -i 's/mcp2515-can1.dtbo/sc16is7xx-ttysc0.dtbo/g' arch/arm/boot/dts/overlays/Makefile
+        else
+            sed -i 's/mcp2515-can1-overlay/sc16is7xx-ttysc0-overlay/g' arch/arm/boot/dts/overlays/Makefile
+        fi
 fi
 
 if grep -q "obj-m += sc16is7xx.o" "drivers/tty/serial/Makefile"; then
@@ -181,8 +186,21 @@ rm -f /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
 rm -f /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
 rm -f /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
 
-cp arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dtb /boot/overlays/sc16is7xx-ttysc0-overlay.dtb
-cp arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dtb /boot/overlays/mcp2515-can0-overlay.dtb
+
+if [ -f "arch/arm/boot/dts/overlays/mcp2515-can0.dtbo" ]; then
+    rm -f /boot/overlays/mcp2515-can0-overlay.dtb
+    rm -f /boot/overlays/sc16is7xx-ttysc0-overlay.dtb
+    cp arch/arm/boot/dts/overlays/mcp2515-can0.dtbo /boot/overlays/mcp2515-can0.dtbo
+    cp arch/arm/boot/dts/overlays/sc16is7xx-ttysc0.dtbo /boot/overlays/sc16is7xx-ttysc0.dtbo
+fi
+
+if [ -f "arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dtb" ]; then
+    cp arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dtb /boot/overlays/mcp2515-can0-overlay.dtb
+    cp arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dtb /boot/overlays/sc16is7xx-ttysc0-overlay.dtb
+fi
+
+
+
 cp drivers/spi/spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
 cp drivers/net/can/spi/mcp251x.ko /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
 cp drivers/tty/serial/sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
@@ -208,18 +226,31 @@ else
 fi
 
 
-if grep -q "spi-bcm2835" "/boot/config.txt"; then
+if grep -q "sc16is7xx" "/boot/config.txt"; then
         echo ""
 else
         echo "INFO: Enabling I2C in /boot/config.txt"
         echo "" >>/boot/config.txt
         echo "dtparam=i2c_arm=on" >>/boot/config.txt
-
-        echo "INFO: Installing CAN and RS232/RS485 driver DT in /boot/cmdline.txt"
+        echo "INFO: Enabling SPI in /boot/config.txt"
         echo "dtparam=spi=on" >>/boot/config.txt
-        echo "dtoverlay=mcp2515-can0-overlay,oscillator=16000000,interrupt=25" >>/boot/config.txt
-        echo "dtoverlay=spi-bcm2835-overlay" >>/boot/config.txt
-        echo "dtoverlay=sc16is7xx-ttysc0-overlay" >>/boot/config.txt
+fi
+
+sed -i 's/dtoverlay=mcp2515/#dtoverlay=mcp2515/g' /boot/config.txt
+sed -i 's/dtoverlay=sc16is7xx/#dtoverlay=sc16is7xx/g' /boot/config.txt
+sed -i 's/dtoverlay=spi-bcm2835/#dtoverlay=spi-bcm2835/g' /boot/config.txt 
+
+echo "INFO: Installing CAN and RS232/RS485 driver DT in /boot/cmdline.txt"
+if [ -f "/boot/overlays/mcp2515-can0-overlay.dtb" ]; then
+    echo "dtoverlay=mcp2515-can0-overlay,oscillator=16000000,interrupt=25" >>/boot/config.txt
+    echo "dtoverlay=sc16is7xx-ttysc0-overlay" >>/boot/config.txt
+    echo "dtoverlay=spi-bcm2835-overlay" >>/boot/config.txt
+fi
+
+if [ -f "/boot/overlays/mcp2515-can0.dtbo" ]; then
+    echo "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" >>/boot/config.txt
+    echo "dtoverlay=sc16is7xx-ttysc0" >>/boot/config.txt
+    #echo "dtoverlay=spi-bcm2835" >>/boot/config.txt
 fi
 
 if grep -q "sdhost" "/boot/config.txt"; then
