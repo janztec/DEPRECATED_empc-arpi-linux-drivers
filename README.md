@@ -5,9 +5,11 @@
 
 Step1:
 
-Install latest RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
+Install RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
 
 (Raspbian Jessie Lite, or Raspbian Jessie recommended. NOOBS installation **not** supported)
+
+( this script is optimized for Raspbian Jessie Lite version 2015-11-24: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ )
 
 Step 2:
 ```
