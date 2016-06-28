@@ -144,8 +144,8 @@ fi
 
 INSTALLDIR=$(pwd)
 
-make oldconfig
-make modules_prepare
+yes "" | make oldconfig
+yes "" | make modules_prepare
 
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
