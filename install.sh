@@ -65,7 +65,12 @@ else
 fi
 
 
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion.txt -O /root/imageversion.txt
+cat /proc/cpuinfo | grep Revision | grep "082"
+if (($? == 0)); then
+	wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion3.txt -O /root/imageversion.txt
+else
+	wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion.txt -O /root/imageversion.txt
+fi
 
 # get installed gcc version
 GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
