@@ -263,13 +263,6 @@ if [ -f "/boot/overlays/mcp2515-can0.dtbo" ]; then
     #echo "dtoverlay=spi-bcm2835" >>/boot/config.txt
 fi
 
-if grep -q "sdhost" "/boot/config.txt"; then
-        echo ""
-else
-        echo "INFO: Enabling sdhost in /boot/config.txt"
-        echo "" >>/boot/config.txt
-        echo "dtoverlay=sdhost" >>/boot/config.txt
-fi
 
 if grep -q "sc16is7xx" "/etc/modules"; then
         echo ""
@@ -341,21 +334,46 @@ else
         echo "dtparam=act_led_gpio=5" >>/boot/config.txt
 fi
 
-if grep -q "pi3-miniuart-bt" "/boot/config.txt"; then
-	echo ""
-else
-	cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
-	if (($? == 0)); then
 
+cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
+if (($? == 0)); then
+	# Raspberry Pi 3B
+
+	if grep -q "dtoverlay=pi3-act-led" "/boot/config.txt"; then
+        	echo ""
+	else
 		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 3B)"
 		echo "dtoverlay=pi3-act-led,gpio=5,activelow=off" >>/boot/config.txt
+	fi
+
+	if grep -q "dtoverlay=pi3-miniuart-bt" "/boot/config.txt"; then
+        	echo ""
+	else
 		echo "INFO: disabling Bluetooth to enable serial console with correct timing (Raspberry Pi 3B)"
 		echo "dtoverlay=pi3-miniuart-bt" >>/boot/config.txt
-	else
+	fi
+	
+	if grep -q "dtoverlay=sdhost" "/boot/config.txt"; then
+		echo "WARN: dtoverlay=sdhost found in /boot/config.txt. If this is enabled, then WLAN will not work. "
+	        sed -i 's/dtoverlay=sdhost/#dtoverlay=sdhost/g' /boot/config.txt
+	fi
 
+else
+	# Raspberry PI 2B
+
+	if grep -q "dtparam=act_led_gpio" "/boot/config.txt"; then
+        	echo ""
+	else
 		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 2B)"
 		echo "dtparam=act_led_gpio=5" >>/boot/config.txt
+	fi
 
+	if grep -q "dtoverlay=sdhost" "/boot/config.txt"; then
+	        echo ""
+	else
+        	echo "INFO: Enabling sdhost in /boot/config.txt"
+	        echo "" >>/boot/config.txt
+        	echo "dtoverlay=sdhost" >>/boot/config.txt
 	fi
 
 fi
