@@ -1,0 +1,4 @@
+latest release:
+
+IMG-LX045 v1x0
+    - added support for Raspberry PI 3B
