@@ -44,6 +44,10 @@ echo "- Install RTC initialization as service"
 echo "- Increase USB max. current"
 echo "- Enable I2C and SPI drivers"
 echo "- Set Green LED as SD card activity LED"
+cat /proc/cpuinfo | grep Revision | grep "082"
+if (($? == 0)); then
+	echo "- Disable Bluetooth (enable serial console)"
+fi
 echo "--------------------------------------------------------------------------------"
 echo ""
 echo "Important: Create a backup copy of the system before starting this installation!"
