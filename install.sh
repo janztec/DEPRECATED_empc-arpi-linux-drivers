@@ -332,6 +332,26 @@ else
         echo "dtparam=act_led_gpio=5" >>/boot/config.txt
 fi
 
+if grep -q "pi3-miniuart-bt" "/boot/config.txt"; then
+	echo ""
+else
+	cat /proc/cpuinfo | grep Revision | grep "082"
+	if (($? == 0)); then
+
+		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 3B)"
+		echo "dtoverlay=pi3-act-led,gpio=5,activelow=off" >>/boot/config.txt
+		echo "INFO: disabling Bluetooth to enable serial console with correct timing (Raspberry Pi 3B)"
+		echo "dtoverlay=pi3-miniuart-bt" >>/boot/config.txt
+	else
+
+		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 2B)"
+		echo "dtparam=act_led_gpio=5" >>/boot/config.txt
+
+	fi
+
+fi
+
+
 if grep -q "triple-sampling" "/etc/network/interfaces"; then
         echo ""
 else
