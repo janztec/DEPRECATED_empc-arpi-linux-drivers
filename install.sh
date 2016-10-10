@@ -329,11 +329,7 @@ else
         echo "" >>/boot/config.txt
         echo "INFO: Configuring USB max current in /boot/config.txt"
         echo "max_usb_current=1" >>/boot/config.txt
-
-        echo "INFO: Enabling green LED as microSD activity LED"
-        echo "dtparam=act_led_gpio=5" >>/boot/config.txt
 fi
-
 
 cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
 if (($? == 0)); then
@@ -361,7 +357,7 @@ if (($? == 0)); then
 else
 	# Raspberry PI 2B
 
-	if grep -q "dtparam=act_led_gpio" "/boot/config.txt"; then
+	if grep -q "dtparam=act_led_gpio=5" "/boot/config.txt"; then
         	echo ""
 	else
 		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 2B)"
