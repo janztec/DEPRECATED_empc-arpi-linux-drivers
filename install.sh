@@ -47,6 +47,7 @@ echo "- Set Green LED as SD card activity LED"
 cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
 if (($? == 0)); then
 	echo "- Disable Bluetooth (enable serial console)"
+	echo "- Set CPU frequency to fixed 600MHZ"
 fi
 echo "--------------------------------------------------------------------------------"
 echo ""
@@ -334,18 +335,27 @@ fi
 cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
 if (($? == 0)); then
 	# Raspberry Pi 3B
+	echo "(Raspberry Pi 3B)"
+	
+	if grep -q "arm_freq=600" "/boot/config.txt"; then
+		echo ""
+	else
+		echo "INFO: Set CPU frequency to fixed 600MHZ"
+		echo "# Janz Tec AG: force 600MHZ" >>/boot/config.txt
+		echo "arm_freq=600" >>/boot/config.txt	
+	fi
 
 	if grep -q "dtoverlay=pi3-act-led" "/boot/config.txt"; then
         	echo ""
 	else
-		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 3B)"
+		echo "INFO: Enabling green LED as microSD activity LED"
 		echo "dtoverlay=pi3-act-led,gpio=5,activelow=off" >>/boot/config.txt
 	fi
 
 	if grep -q "dtoverlay=pi3-miniuart-bt" "/boot/config.txt"; then
         	echo ""
 	else
-		echo "INFO: disabling Bluetooth to enable serial console with correct timing (Raspberry Pi 3B)"
+		echo "INFO: disabling Bluetooth to enable serial console with correct timing"
 		echo "dtoverlay=pi3-miniuart-bt" >>/boot/config.txt
 	fi
 	
@@ -356,11 +366,12 @@ if (($? == 0)); then
 
 else
 	# Raspberry PI 2B
+	echo "(Raspberry Pi 2B)"
 
 	if grep -q "dtparam=act_led_gpio=5" "/boot/config.txt"; then
         	echo ""
 	else
-		echo "INFO: Enabling green LED as microSD activity LED (Raspberry Pi 2B)"
+		echo "INFO: Enabling green LED as microSD activity LED"
 		echo "dtparam=act_led_gpio=5" >>/boot/config.txt
 	fi
 
