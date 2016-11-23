@@ -43,7 +43,7 @@ echo "- Install SocketCAN initialization as service"
 echo "- Install RTC initialization as service"
 echo "- Increase USB max. current"
 echo "- Enable I2C and SPI drivers"
-echo "- Set Green LED as SD card activity LED"
+echo "- Set green LED as SD card activity LED"
 cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
 if (($? == 0)); then
 	echo "- Disable Bluetooth (enable serial console)"
@@ -121,7 +121,15 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
           if wget -nv "https://github.com$link" -O - | grep module_layout | grep $LAYOUT; then
             echo "INFO: found matching revision!"
             matchedlink=$(echo "$link")
-            break
+            
+            uname=$(wget -qO- https://raw.githubusercontent.com/raspberrypi/firmware/$fwhash/extra/uname_string7 -O -)
+            if echo $uname | grep $KERNEL; then
+              echo "INFO: found matching kernel with uname: $uname"
+              break
+            else
+              echo "INFO: wrong kernel version, trying next"
+            fi
+	    
           fi
         done <links.txt
         rm -f links.txt
