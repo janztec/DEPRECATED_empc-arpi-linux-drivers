@@ -122,6 +122,7 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
             echo "INFO: found matching revision!"
             matchedlink=$(echo "$link")
             
+	    fwhash=$(echo $matchedlink | cut -d/ -f 5)
             uname=$(wget -qO- https://raw.githubusercontent.com/raspberrypi/firmware/$fwhash/extra/uname_string7 -O -)
             if echo $uname | grep $KERNEL; then
               echo "INFO: found matching kernel with uname: $uname"
