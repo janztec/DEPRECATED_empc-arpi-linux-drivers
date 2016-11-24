@@ -184,6 +184,7 @@ yes "" | make modules_prepare
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux/rpi-3.18.y/arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
 
+
 sed -i 's/sc16is752-spi1/sc16is7xx-ttysc0/g' arch/arm/boot/dts/overlays/Makefile
 
 
@@ -193,6 +194,8 @@ sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS (50)/' dri
 echo "INFO: patching spi-bcm2835.c with higher polling limit"
 sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
 
+echo "INFO: replacing file sc16is7xx.c to support RS485 mode"
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
 # end patching
 
 make SUBDIRS=arch/arm/boot/dts/overlays modules
