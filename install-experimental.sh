@@ -181,8 +181,8 @@ echo "CONFIG_SPI_BCM2835=m" >>.config
 yes "" | make oldconfig
 yes "" | make modules_prepare
 
-wget -nv https://github.com/janztec/empc-arpi-linux-drivers/blob/master/src/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
-wget -nv https://github.com/janztec/empc-arpi-linux-drivers/blob/master/src/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
 
 
 sed -i 's/sc16is752-spi1/sc16is7xx-ttysc0/g' arch/arm/boot/dts/overlays/Makefile
