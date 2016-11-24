@@ -194,8 +194,16 @@ sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS (50)/' dri
 echo "INFO: patching spi-bcm2835.c with higher polling limit"
 sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
 
-echo "INFO: replacing file sc16is7xx.c to support RS485 mode"
-wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
+echo "INFO: patching file sc16is7xx.c to support emPC-A/RPI RS485 mode"
+wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c.patch -O sc16is7xx.c.patch
+patch -l drivers/tty/serial/sc16is7xx.c -i sc16is7xx.c.patch -o drivers/tty/serial/sc16is7xx.c --verbose
+ 
+if grep -q "emPC" "drivers/tty/serial/sc16is7xx.c"; then
+        echo "INFO: patching file sc16is7xx.c successful"
+else
+        echo "ERROR: patching file sc16is7xx.c failed"
+	exit 15
+fi
 # end patching
 
 make SUBDIRS=arch/arm/boot/dts/overlays modules
