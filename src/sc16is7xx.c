@@ -3,6 +3,9 @@
  * Author: Jon Ringle <jringle@gridpoint.com>
  *
  *  Based on max310x.c, by Alexander Shiyan <shc_work@mail.ru>
+ * 
+ * Added RS485 mode detection based on jumper setting for emPC-A/RPI, 
+ * by Andre Massow <andre.massow@janztec.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +32,8 @@
 #include <linux/tty_flip.h>
 #include <linux/spi/spi.h>
 #include <linux/uaccess.h>
+
+static int RS485 = 2; // 2=auto=jumper J301 , 0=off, 1=on
 
 #define SC16IS7XX_NAME			"sc16is7xx"
 #define SC16IS7XX_MAX_DEVS		8
@@ -884,6 +889,12 @@ static void sc16is7xx_set_termios(struct uart_port *port,
 	sc16is7xx_port_write(port, SC16IS7XX_LCR_REG,
 			     SC16IS7XX_LCR_CONF_MODE_B);
 
+	if (RS485==1) {
+		sc16is7xx_port_update(port, SC16IS7XX_EFCR_REG,
+			SC16IS7XX_EFCR_AUTO_RS485_BIT,
+			SC16IS7XX_EFCR_AUTO_RS485_BIT);
+	}
+	
 	/* Configure flow control */
 	regcache_cache_bypass(s->regmap, true);
 	sc16is7xx_port_write(port, SC16IS7XX_XON1_REG, termios->c_cc[VSTART]);
@@ -1130,6 +1141,30 @@ static int sc16is7xx_gpio_direction_output(struct gpio_chip *chip,
 }
 #endif
 
+
+static int chip_match_name(struct gpio_chip *chip, void *data)
+{
+        return !strcmp(chip->label, data);
+}
+static int sc16is7xx_readserialportjumper(struct device *dev) {
+        struct gpio_chip *chip;
+        chip = gpiochip_find("pinctrl-bcm2835", chip_match_name);
+        if (!chip)
+                return -2;
+        gpio_direction_input( chip->base+24 );
+        if (gpio_get_value( chip->base+24 )==1) {
+                RS485 = 1;
+                dev_info(dev, "RS485 MODE (jumper off)\n");
+                return 1;
+        } else {
+                RS485 = 0;
+                dev_info(dev, "RS232 MODE (jumper on)\n");
+                return 0;
+        }
+        return -1;
+}
+
+
 static int sc16is7xx_probe(struct device *dev,
 			   const struct sc16is7xx_devtype *devtype,
 			   struct regmap *regmap, int irq, unsigned long flags)
@@ -1141,6 +1176,9 @@ static int sc16is7xx_probe(struct device *dev,
 
 	if (IS_ERR(regmap))
 		return PTR_ERR(regmap);
+	
+	if (RS485==2)
+		sc16is7xx_readserialportjumper( dev );
 
 	/* Alloc port structure */
 	s = devm_kzalloc(dev, sizeof(*s) +
@@ -1470,5 +1508,8 @@ static void __exit sc16is7xx_exit(void)
 module_exit(sc16is7xx_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Jon Ringle <jringle@gridpoint.com>");
-MODULE_DESCRIPTION("SC16IS7XX serial driver");
+MODULE_AUTHOR("Jon Ringle <jringle@gridpoint.com>, Andre Massow <andre.massow@janztec.com>");
+MODULE_DESCRIPTION("SC16IS7XX serial driver (optimized for Janz Tec AG emPC-A/RPI)");
+
+module_param(RS485, int, 0644);
+MODULE_PARM_DESC(RS485, "force RS485 mode (auto RTS), 2=jumper, 1=on, 0=off");
