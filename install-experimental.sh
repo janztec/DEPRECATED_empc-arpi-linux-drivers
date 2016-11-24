@@ -165,6 +165,24 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         cd raspberrypi-linux-*        
         wget -nv https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
         zcat /proc/config.gz > .config
+		
+	# start patching
+	echo "INFO: patching mcp251x.c with higher reset time"
+	sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS (50)/' drivers/net/can/spi/mcp251x.c
+	echo "INFO: patching spi-bcm2835.c with higher polling limit"
+	sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
+
+	echo "INFO: patching file sc16is7xx.c to support emPC-A/RPI RS485 mode"
+	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c.patch -O sc16is7xx.c.patch
+	if patch -l drivers/tty/serial/sc16is7xx.c -i sc16is7xx.c.patch -o sc16is7xx.c --verbose; then
+	        echo "INFO: patching file sc16is7xx.c successful"
+		mv sc16is7xx.c drivers/tty/serial/sc16is7xx.c
+	else
+	        echo "ERROR: patching file sc16is7xx.c failed (this kernel version is not yet supported)"
+		exit 15
+	fi
+	# end patching
+	
 else
     cd raspberrypi-linux-*
 fi
@@ -185,25 +203,6 @@ wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/maste
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
 
 
-sed -i 's/sc16is752-spi1/sc16is7xx-ttysc0/g' arch/arm/boot/dts/overlays/Makefile
-
-
-# start patching
-echo "INFO: patching mcp251x.c with higher reset time"
-sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS (50)/' drivers/net/can/spi/mcp251x.c
-echo "INFO: patching spi-bcm2835.c with higher polling limit"
-sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
-
-echo "INFO: patching file sc16is7xx.c to support emPC-A/RPI RS485 mode"
-wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c.patch -O sc16is7xx.c.patch
-if patch -l drivers/tty/serial/sc16is7xx.c -i sc16is7xx.c.patch -o sc16is7xx.c --verbose; then
-        echo "INFO: patching file sc16is7xx.c successful"
-	mv sc16is7xx.c drivers/tty/serial/sc16is7xx.c
-else
-        echo "ERROR: patching file sc16is7xx.c failed (this kernel version is not yet supported)"
-	exit 15
-fi
-# end patching
 
 make SUBDIRS=arch/arm/boot/dts/overlays modules
 make SUBDIRS=drivers/tty/serial modules
