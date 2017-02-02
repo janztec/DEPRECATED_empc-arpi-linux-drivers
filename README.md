@@ -25,6 +25,8 @@ cd /home/pi
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh -O /home/pi/install.sh
 
 bash install.sh
+
+rm install.sh
 ```
 
 ## Product page
