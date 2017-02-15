@@ -202,7 +202,12 @@ yes "" | make modules_prepare
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
 wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
 
-
+if grep -q ".dtbo" "arch/arm/boot/dts/overlays/Makefile"; then
+   # starting with kernel 4.4.xxx use dtbo files
+   sed -i 's/mcp2515-can1.dtbo/sc16is7xx-ttysc0.dtbo/g' arch/arm/boot/dts/overlays/Makefile
+else
+   sed -i 's/mcp2515-can1-overlay/sc16is7xx-ttysc0-overlay/g' arch/arm/boot/dts/overlays/Makefile
+fi
 
 make SUBDIRS=arch/arm/boot/dts/overlays modules
 make SUBDIRS=drivers/tty/serial modules
