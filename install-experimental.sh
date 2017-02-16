@@ -166,8 +166,8 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         wget -nv https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
         zcat /proc/config.gz > .config
 		
-	echo "INFO: patching spi-bcm2835.c with higher polling limit"
-	sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
+	#echo "INFO: patching spi-bcm2835.c with higher polling limit"
+	#sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
 
 	echo "INFO: downloading customized mcp251x.c with higher reset time"
 	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp251x.c -O drivers/net/can/spi/mcp251x.c 
