@@ -31,7 +31,7 @@ bash install.sh
 
 ## Product page
 https://www.janztec.com/en/products/embedded-computing/empc/empc-arpi3/
-![emPC-A/RPI](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emPC-A-RPI/janztec_produkte_embedded_emPC_RPI_raspberry_front.jpg)
+![emPC-A/RPI](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emPC-A-RPI2/janztec_produkte_embedded_emPC_RPI_raspberry_front.jpg)
 
 **FEATURES emPC-A/RPI3**
 * Processor 
