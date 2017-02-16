@@ -1,5 +1,5 @@
-# emPC-A/RPI by Janz Tec AG
-**Low Cost ARM Cortex-A7 Based Embedded Controller**
+# emPC-A/RPI & emPC-A/RPI3 by Janz Tec AG
+**Low Cost ARM Based Embedded Controller**
 
 ## Installation Instructions:
 
@@ -9,7 +9,9 @@ Install RASPBIAN operating system from https://www.raspberrypi.org/downloads/
 
 (Raspbian Jessie Lite, or Raspbian Jessie recommended. NOOBS installation **not** supported)
 
-( this script is currently supported for **Raspbian Jessie Lite version 2015-11-24**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ )
+( this script is currently supported for **emPC-A/RPI3** **Raspbian Jessie Lite version 2016-09-28**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2016-09-28/ )
+
+( this script is currently supported for **emPC-A/RPI** **Raspbian Jessie Lite version 2015-11-24**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ )
 
 Step 2:
 ```
@@ -28,14 +30,14 @@ bash install.sh
 ```
 
 ## Product page
-https://www.janztec.com/en/empc-a-rpi.html
+https://www.janztec.com/en/products/embedded-computing/empc/empc-arpi3/
 ![emPC-A/RPI](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emPC-A-RPI/janztec_produkte_embedded_emPC_RPI_raspberry_front.jpg)
 
-**FEATURES emPC-A/RPI**
+**FEATURES emPC-A/RPI3**
 * Processor 
-  * Based on Raspberry Pi 2, Model B 
-  * Broadcom BCM2836 processor 
-  * Quad-Core CPU based on ARM Cortex-A7  with 900 MHz 
+  * Based on Raspberry Pi 3, Model B 
+  * Broadcom BCM2837 processor 
+  * Quad-Core CPU based on ARM Cortex-A53 
   * Fanless cooling concept 
   * Realtime clock, battery buffered 
 * Memory 
