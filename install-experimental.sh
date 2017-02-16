@@ -172,16 +172,8 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
 	echo "INFO: patching spi-bcm2835.c with higher polling limit"
 	sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
 
-	echo "INFO: patching file sc16is7xx.c to support emPC-A/RPI RS485 mode"
-	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c.patch -O sc16is7xx.c.patch
-	if patch -l drivers/tty/serial/sc16is7xx.c -i sc16is7xx.c.patch -o sc16is7xx.c --verbose; then
-	        echo "INFO: patching file sc16is7xx.c successful"
-		mv sc16is7xx.c drivers/tty/serial/sc16is7xx.c
-	else
-	        echo "ERROR: patching file sc16is7xx.c failed (this kernel version is not yet supported)"
-		exit 15
-	fi
-	# end patching
+	echo "INFO: downloading customized sc16is7xx.c to support emPC-A/RPI RS485 mode"
+	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
 	
 else
     cd raspberrypi-linux-*
