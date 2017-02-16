@@ -262,7 +262,7 @@ sed -i 's/dtoverlay=mcp2515/#dtoverlay=mcp2515/g' /boot/config.txt
 sed -i 's/dtoverlay=sc16is7xx/#dtoverlay=sc16is7xx/g' /boot/config.txt
 sed -i 's/dtoverlay=spi-bcm2835/#dtoverlay=spi-bcm2835/g' /boot/config.txt 
 
-echo "INFO: Installing CAN and RS232/RS485 driver DT in /boot/cmdline.txt"
+echo "INFO: Installing CAN and RS232/RS485 driver DT in /boot/config.txt"
 if [ -f "/boot/overlays/mcp2515-can0-overlay.dtb" ]; then
     echo "dtoverlay=mcp2515-can0-overlay,oscillator=16000000,interrupt=25" >>/boot/config.txt
     echo "dtoverlay=sc16is7xx-ttysc0-overlay" >>/boot/config.txt
