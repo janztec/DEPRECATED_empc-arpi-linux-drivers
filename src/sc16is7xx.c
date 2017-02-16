@@ -1268,7 +1268,7 @@ static int sc16is7xx_probe(struct device *dev,
 
 	/* Setup interrupt */
 	ret = devm_request_irq(dev, irq, sc16is7xx_irq,
-			       IRQF_ONESHOT | IRQF_TRIGGER_LOW, SC16IS7XX_NAME, s);
+			       IRQF_TRIGGER_FALLING, SC16IS7XX_NAME, s);
 	if (!ret)
 		return 0;
 
