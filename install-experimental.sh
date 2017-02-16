@@ -166,11 +166,11 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         wget -nv https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
         zcat /proc/config.gz > .config
 		
-	# start patching
-	echo "INFO: patching mcp251x.c with higher reset time"
-	sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS (50)/' drivers/net/can/spi/mcp251x.c
 	echo "INFO: patching spi-bcm2835.c with higher polling limit"
 	sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
+
+	echo "INFO: downloading customized mcp251x.c with higher reset time"
+	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp251x.c -O drivers/net/can/spi/mcp251x.c 
 
 	echo "INFO: downloading customized sc16is7xx.c to support emPC-A/RPI RS485 mode"
 	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
