@@ -120,7 +120,9 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         echo "INFO: Module layout: $LAYOUT"
        
         wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >links.txt
-        wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?page=2 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
+        # pagination does no longer work! wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?page=2 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
+	wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzM0 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
+	wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzY5 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt 
         
         link=""
         matchedlink="err"
