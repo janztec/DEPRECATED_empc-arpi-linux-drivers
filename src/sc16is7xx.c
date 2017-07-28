@@ -831,7 +831,11 @@ static void sc16is7xx_set_mctrl(struct uart_port *port, unsigned int mctrl)
 	struct sc16is7xx_one *one = to_sc16is7xx_one(port, port);
 
 	one->config.flags |= SC16IS7XX_RECONF_MD;
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_queue_work(&s->kworker, &one->reg_work);
+	#else
 	queue_kthread_work(&s->kworker, &one->reg_work);
+	#endif
 }
 
 static void sc16is7xx_break_ctl(struct uart_port *port, int break_state)
@@ -966,7 +970,11 @@ static int sc16is7xx_config_rs485(struct uart_port *port,
 
 	port->rs485 = *rs485;
 	one->config.flags |= SC16IS7XX_RECONF_RS485;
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_queue_work(&s->kworker, &one->reg_work);
+	#else
 	queue_kthread_work(&s->kworker, &one->reg_work);
+	#endif
 
 	return 0;
 }
