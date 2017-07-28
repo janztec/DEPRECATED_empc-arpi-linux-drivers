@@ -32,6 +32,7 @@
 #include <linux/tty_flip.h>
 #include <linux/spi/spi.h>
 #include <linux/uaccess.h>
+#include <linux/version.h>
 
 static int RS485 = 2; // 2=auto=jumper J301 , 0=off, 1=on
 
