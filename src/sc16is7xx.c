@@ -1241,7 +1241,11 @@ static int sc16is7xx_probe(struct device *dev,
 	for (i = 0; i < devtype->nr_uart; ++i) {
 		s->p[i].line		= i;
 		/* Initialize port data */
+		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,79)
+		s->p[i].port.parent	= dev;
+		#else
 		s->p[i].port.dev	= dev;
+		#endif
 		s->p[i].port.irq	= irq;
 		s->p[i].port.type	= PORT_SC16IS7XX;
 		s->p[i].port.fifosize	= SC16IS7XX_FIFO_SIZE;
