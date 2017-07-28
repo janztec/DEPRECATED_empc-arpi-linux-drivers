@@ -707,7 +707,11 @@ static irqreturn_t sc16is7xx_irq(int irq, void *dev_id)
 {
 	struct sc16is7xx_port *s = (struct sc16is7xx_port *)dev_id;
 
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_queue_work(&s->kworker, &s->irq_work);
+	#else
 	queue_kthread_work(&s->kworker, &s->irq_work);
+	#endif
 
 	return IRQ_HANDLED;
 }
@@ -775,7 +779,11 @@ static void sc16is7xx_ier_clear(struct uart_port *port, u8 bit)
 
 	one->config.flags |= SC16IS7XX_RECONF_IER;
 	one->config.ier_clear |= bit;
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_queue_work(&s->kworker, &one->reg_work);
+	#else
 	queue_kthread_work(&s->kworker, &one->reg_work);
+	#endif
 }
 
 static void sc16is7xx_stop_tx(struct uart_port *port)
@@ -793,7 +801,11 @@ static void sc16is7xx_start_tx(struct uart_port *port)
 	struct sc16is7xx_port *s = dev_get_drvdata(port->dev);
 	struct sc16is7xx_one *one = to_sc16is7xx_one(port, port);
 
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_queue_work(&s->kworker, &one->tx_work);
+	#else
 	queue_kthread_work(&s->kworker, &one->tx_work);
+	#endif
 }
 
 static unsigned int sc16is7xx_tx_empty(struct uart_port *port)
@@ -1028,7 +1040,11 @@ static void sc16is7xx_shutdown(struct uart_port *port)
 
 	sc16is7xx_power(port, 0);
 
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_flush_worker(&s->kworker);
+	#else
 	flush_kthread_worker(&s->kworker);
+	#endif
 }
 
 static const char *sc16is7xx_type(struct uart_port *port)
@@ -1205,8 +1221,13 @@ static int sc16is7xx_probe(struct device *dev,
 	s->devtype = devtype;
 	dev_set_drvdata(dev, s);
 
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_init_worker(&s->kworker);
+	kthread_init_work(&s->irq_work, sc16is7xx_ist);
+	#else
 	init_kthread_worker(&s->kworker);
 	init_kthread_work(&s->irq_work, sc16is7xx_ist);
+	#endif	
 	s->kworker_task = kthread_run(kthread_worker_fn, &s->kworker,
 				      "sc16is7xx");
 	if (IS_ERR(s->kworker_task)) {
@@ -1264,8 +1285,13 @@ static int sc16is7xx_probe(struct device *dev,
 				     SC16IS7XX_EFCR_RXDISABLE_BIT |
 				     SC16IS7XX_EFCR_TXDISABLE_BIT);
 		/* Initialize kthread work structs */
+		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+		kthread_init_work(&s->p[i].tx_work, sc16is7xx_tx_proc);
+		kthread_init_work(&s->p[i].reg_work, sc16is7xx_reg_proc);
+		#else
 		init_kthread_work(&s->p[i].tx_work, sc16is7xx_tx_proc);
 		init_kthread_work(&s->p[i].reg_work, sc16is7xx_reg_proc);
+		#endif
 		/* Register port */
 		uart_add_one_port(&sc16is7xx_uart, &s->p[i].port);
 		/* Go to suspend mode */
@@ -1315,7 +1341,11 @@ static int sc16is7xx_remove(struct device *dev)
 		sc16is7xx_power(&s->p[i].port, 0);
 	}
 
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,17)
+	kthread_flush_worker(&s->kworker);
+	#else
 	flush_kthread_worker(&s->kworker);
+	#endif
 	kthread_stop(s->kworker_task);
 
 	if (!IS_ERR(s->clk))
