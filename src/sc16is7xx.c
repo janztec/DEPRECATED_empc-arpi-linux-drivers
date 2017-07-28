@@ -1218,7 +1218,12 @@ static int sc16is7xx_probe(struct device *dev,
 	if (devtype->nr_gpio) {
 		/* Setup GPIO cotroller */
 		s->gpio.owner		 = THIS_MODULE;
+		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,79)
+		s->gpio.parent		 = dev;
+		#else
 		s->gpio.dev		 = dev;
+		#endif
+		
 		s->gpio.label		 = dev_name(dev);
 		s->gpio.direction_input	 = sc16is7xx_gpio_direction_input;
 		s->gpio.get		 = sc16is7xx_gpio_get;
