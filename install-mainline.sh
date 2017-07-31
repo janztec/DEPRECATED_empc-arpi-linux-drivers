@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPORAW="https://raw.githubusercontent.com/britnex/empc-arpi-linux-drivers/master"
+REPORAW="https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master"
 
 ERR='\033[0;31m'
 INFO='\032[0;31m'
@@ -107,12 +107,12 @@ OPTIMIZATIONS="Optimizations of mainline drivers are available:\n
  - higher polling time limit for lower latency
  - enable real time priority for work queue\n
 - SocketCan driver (mcp251x.c)
- - higher ost delay timeout to prevent can detection problems after soft-reboots
+ - higher ost delay timeout to prevent can detection problems after soft-reboots\n
 - Serial RS232/RS485 (sc16is7xx.c)
  - added delay in startup to prevent message: unexpected interrupt: 8
 \nDo you want these optimizations?"
 
-if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 21 60) then
+if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 22 60) then
  
  # TODO: create patches 
  echo "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
@@ -265,9 +265,10 @@ fi
 
 
 
-wget -nv $REPORAW/tools/empc-can-setbaudrate.sh -O /usr/sbin/empc-can-setbaudrate.sh
-chmod +x /usr/sbin/empc-can-setbaudrate.sh
-/usr/sbin/empc-can-setbaudrate.sh
+
+wget -nv $REPORAW/scripts/empc-can-configbaudrate.sh -O /usr/sbin/empc-can-configbaudrate.sh
+chmod +x /usr/sbin/empc-can-configbaudrate.sh
+/usr/sbin/empc-can-configbaudrate.sh
 
 
 
