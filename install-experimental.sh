@@ -1,85 +1,66 @@
 #!/bin/bash
 
+REPORAW="https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master"
+
+ERR='\033[0;31m'
+INFO='\032[0;31m'
+NC='\033[0m' # No Color
+
 if [ $EUID -ne 0 ]; then
-    echo "ERROR: This script should be run as root." > /dev/stderr
+    echo "$ERR ERROR: This script should be run as root. $NC" 1>&2
     exit 1
 fi
 
-YEAR=$[`date +'%Y'`]
-if [ $YEAR -le 2015 ] ; then
-        echo "ERROR: invalid date. set current date and time!";
-        exit 2
+KERNEL=$(uname -r)
+
+KERNELMAJ=$(echo $KERNEL | cut -d. -f1)
+KERNELMIN=$(echo $KERNEL | cut -d. -f2)
+KERNELVER=$(($KERNELMAJ*100+$KERNELMIN));
+
+if [ $KERNELVER -le 408 ]; then
+ 
+ echo "$ERR WARNING: kernel is outdated - $NC" 1>&2
+ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "WARNING: kernel is outdated ($KERNEL < 4.9.0)\n\nDo you want to continue anyway?" 10 60) then
+    echo ""
+ else
+   exit 0
+ fi
+
 fi
-if [ $YEAR -ge 2023 ] ; then
-        echo "ERROR: invalid date. set current date and time!";
-        exit 2
+
+YEAR=$[`date +'%Y'`]
+if [ $YEAR -le 2016 ] ; then
+        echo "$ERR ERROR: invalid date. set current date and time! $NC" 1>&2
+        exit 1
+fi
+if [ $YEAR -ge 2020 ] ; then
+        echo "$ERR ERROR: invalid date. set current date and time! $NC" 1>&2
+        exit 1
 fi
 
 FREE=`df $PWD | awk '/[0-9]%/{print $(NF-2)}'`
 if [[ $FREE -lt 1048576 ]]; then
-  echo "ERROR: 1GB free disk space required (run raspi-config, 'Expand Filesystem')" > /dev/stderr
+  echo "$ERR ERROR: 1GB free disk space required (run raspi-config, 'Expand Filesystem') $NC" > /dev/stderr
   exit 1
 fi
 
 KERNEL=$(uname -r)
 
 clear
-echo "--------------------------------------------------------------------------------"
-echo ""
-echo "                   Janz Tec AG emPC-A/RPI driver installer  "
-echo ""
-echo " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-echo ""
-echo "            EXPERIMENTAL! EXPERIMENTAL! EXPERIMENTAL! EXPERIMENTAL!    "
-echo ""
-echo "      ( this version is intended to test support for newer Linux kernels ) "
-echo " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-echo ""
-echo "Minimum installation requirements:"
-echo "- emPC-A/RPI hardware version 1.1 or later"
-echo "- Kernel 4.4 or later (currently running: $KERNEL)"
-echo "- Internet connection (about 150MB will be downloaded)"
-echo "- 1GB free disk space"
-echo "These drivers will be compiled and installed:"
-echo "- CAN driver (SocketCAN)"
-echo "- Serial driver (RS232/RS485)"
-echo "- SPI driver"
-echo "These software components will be installed:"
-echo "- libncurses5-dev, gcc, lib, autoconf, libtool, libsocketcan, can-utils"
-echo "These configuration settings will automatically be made:"
-echo "- Install SocketCAN initialization as service"
-echo "- Install RTC initialization as service"
-echo "- Increase USB max. current"
-echo "- Enable I2C and SPI drivers"
-echo "- Set green LED as SD card activity LED"
-cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
-if (($? == 0)); then
-	echo "- Disable Bluetooth (enable serial console)"
-	echo "- Set CPU frequency to fixed 600MHZ"
-fi
-echo "--------------------------------------------------------------------------------"
-echo ""
-echo "Important: Create a backup copy of the system before starting this installation!"
-echo ""
-read -p "Continue installation (y/n)?" CONT
-if [ "$CONT" == "y" ] || [ "$CONT" == "j" ]; then
-        echo -n "starting installation in";
-        sleep 1 && echo -n " (3) "
-        sleep 1 && echo -n " (2) "
-        sleep 1 && echo -n " (1) "
-        echo ""
+WELCOME="These drivers will be compiled and installed:\n
+- CAN driver (SocketCAN)
+- Serial driver (RS232/RS485)
+- SPI driver\n
+These software components will be installed:\n
+- libncurses5-dev, gcc, build-essential, raspberrypi-kernel-headers, lib, autoconf, libtool, libsocketcan, can-utils\n
+continue installation?"
+
+if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$WELCOME" 20 60) then
+    echo ""
 else
-        echo "Info: installation canceled" 1>&2
-        exit 2
+    exit 0
 fi
 
-
-cat /proc/cpuinfo | grep Revision | grep "082"
-if (($? == 0)); then
-	wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion3.txt -O /root/imageversion.txt
-else
-	wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion.txt -O /root/imageversion.txt
-fi
 
 # get installed gcc version
 GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
@@ -87,7 +68,7 @@ GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
 apt-get update -y
-apt-get -y install libncurses5-dev bc
+apt-get -y install libncurses5-dev bc build-essential raspberrypi-kernel-headers
 apt-get -y install gcc-$GCCVER g++-$GCCVER
 
 if [ ! -f "/usr/bin/gcc-$GCCVER" ] || [ ! -f "/usr/bin/g++-$GCCVER" ]; then
@@ -107,206 +88,140 @@ update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCCVER 50
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVER"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVER"
 
-mkdir -p /home/pi/empc-arpi-linux
-cd /home/pi/empc-arpi-linux
 
-modprobe configs
-apt-get install -y pv
 
-if [ ! -f "linux-$KERNEL.tar.gz" ]; then
-        rm -rf raspberrypi-linux-*
+rm -rf /tmp/empc-arpi-linux-drivers
+mkdir -p /tmp/empc-arpi-linux-drivers
+cd /tmp/empc-arpi-linux-drivers
 
-        LAYOUT=$(modprobe --dump-modversions /lib/modules/$KERNEL/kernel/drivers/net/dummy.ko | grep module_layout | awk '{print $1}')
-        echo "INFO: Module layout: $LAYOUT"
-       
-        wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >links.txt
-        # pagination does no longer work! wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?page=2 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
-	wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzM0 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
-	wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzY5 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt 
-        
-        link=""
-        matchedlink="err"
-        while read link; do
-          echo "INFO: downloading: $link"
-          if wget -nv "https://github.com$link" -O - | grep module_layout | grep $LAYOUT; then
-            echo "INFO: found matching revision!"
-            matchedlink=$(echo "$link")
-            
-	    fwhash=$(echo $matchedlink | cut -d/ -f 5)
-            uname=$(wget -qO- https://raw.githubusercontent.com/raspberrypi/firmware/$fwhash/extra/uname_string7 -O -)
-            if echo $uname | grep $KERNEL; then
-              echo "INFO: found matching kernel with uname: $uname"
-              break
-            else
-              echo "INFO: wrong kernel version, trying next"
-            fi
-	    
-          fi
-        done <links.txt
-        rm -f links.txt
-        
-        if [ "$matchedlink" = "err" ]; then
-            echo 
-            echo "ERROR: unable to find matching firmware "
-            echo
-            exit 3
-        fi
-        
-        fwhash=$(echo $matchedlink | cut -d/ -f 5)
-        
-        echo
-        echo "firmware hash: $fwhash"
-        echo
-        
-        kernhash=$(wget -qO- https://raw.github.com/raspberrypi/firmware/$fwhash/extra/git_hash -O -)
-        wget https://github.com/raspberrypi/linux/tarball/$kernhash -O linux-$KERNEL.tar.gz
 
-        echo "extracting kernel sources.."
-        pv linux-$KERNEL.tar.gz | tar xzf -
+# compile driver modules
 
-        cd raspberrypi-linux-*        
-        wget -nv https://raw.github.com/raspberrypi/firmware/$fwhash/extra/Module7.symvers -O Module.symvers
-        zcat /proc/config.gz > .config
-		
-	#echo "INFO: patching spi-bcm2835.c with higher polling limit"
-	#sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (100)/' drivers/spi/spi-bcm2835.c
+wget -nv https://raw.githubusercontent.com/torvalds/linux/v$KERNELMAJ.$KERNELMIN/drivers/net/can/spi/mcp251x.c -O mcp251x.c
+wget -nv https://raw.githubusercontent.com/torvalds/linux/v$KERNELMAJ.$KERNELMIN/drivers/tty/serial/sc16is7xx.c -O sc16is7xx.c
+wget -nv https://raw.githubusercontent.com/torvalds/linux/v$KERNELMAJ.$KERNELMIN/drivers/spi/spi-bcm2835.c -O spi-bcm2835.c
 
-	echo "INFO: downloading customized mcp251x.c with higher reset time"
-	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp251x.c -O drivers/net/can/spi/mcp251x.c 
 
-	echo "INFO: downloading customized sc16is7xx.c to support emPC-A/RPI RS485 mode"
-	wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx.c -O drivers/tty/serial/sc16is7xx.c
-	
-else
-    cd raspberrypi-linux-*
+OPTIMIZATIONS="Optimizations of mainline drivers are available:\n
+- SPI driver (spi-bcm2835.c)
+ - higher polling time limit for lower latency
+ - enable real time priority for work queue\n
+- SocketCan driver (mcp251x.c)
+ - higher ost delay timeout to prevent can detection problems after soft-reboots\n
+- Serial RS232/RS485 (sc16is7xx.c)
+ - added delay in startup to prevent message: unexpected interrupt: 8
+\nDo you want these optimizations?"
+
+if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 22 60) then
+ 
+ # TODO: create patches 
+ echo "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
+ sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (200)/' spi-bcm2835.c
+ echo "$INFO INFO: patching spi-bcm2835 with RT priority $NC" 1>&2
+ sed -i 's/platform_set_drvdata(pdev, master);/platform_set_drvdata(pdev, master); master->rt = 1;/' spi-bcm2835.c
+ 
+ echo "$INFO INFO: patching mcp251x.c with higher timeout to prevent can detection problems after soft-reboots $NC" 1>&2
+ sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS	(25)/' mcp251x.c
+ 
+ echo "$INFO INFO: patching sc16is7xx.c with delay in startup to prevent message: unexpected interrupt: 8 $NC" 1>&2
+ sed -i 's/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val);/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val); mdelay(1);/' sc16is7xx.c
+
 fi
 
 
-INSTALLDIR=$(pwd)
+echo "obj-m += sc16is7xx.o" >Makefile
+echo "obj-m += mcp251x.o" >>Makefile
+echo "obj-m += spi-bcm2835.o" >>Makefile
 
+echo "all:">>Makefile
+echo -e "\tmake -C /lib/modules/$KERNEL/build M=/tmp/empc-arpi-linux-drivers modules" >>Makefile
 
-echo "CONFIG_CAN_MCP251X=m" >>.config
-echo "CONFIG_SERIAL_SC16IS7XX_CORE=m" >>.config
-echo "CONFIG_SERIAL_SC16IS7XX_SPI=y" >>.config
-echo "CONFIG_SPI_BCM2835=m" >>.config
+make
 
-yes "" | make oldconfig
-yes "" | make modules_prepare
-
-wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/sc16is7xx-ttysc0-overlay.dts -O arch/arm/boot/dts/overlays/sc16is7xx-ttysc0-overlay.dts
-wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/src/mcp2515-can0-overlay.dts -O arch/arm/boot/dts/overlays/mcp2515-can0-overlay.dts
-
-if grep -q ".dtbo" "arch/arm/boot/dts/overlays/Makefile"; then
-   # starting with kernel 4.4.xxx use dtbo files
-   sed -i 's/mcp2515-can1.dtbo/sc16is7xx-ttysc0.dtbo/g' arch/arm/boot/dts/overlays/Makefile
-else
-   sed -i 's/mcp2515-can1-overlay/sc16is7xx-ttysc0-overlay/g' arch/arm/boot/dts/overlays/Makefile
+if [ ! -f "mcp251x.ko" ] || [ ! -f "sc16is7xx.ko" ] || [ ! -f "spi-bcm2835.ko" ]; then
+ echo "$ERR Error: Installation failed! (driver modules build failed) $NC" 1>&2
+ whiptail --title "Error" --msgbox "Installation failed! (driver modules build failed)" 10 60
+ exit 1
 fi
 
-make SUBDIRS=arch/arm/boot/dts/overlays modules
-make SUBDIRS=drivers/tty/serial modules
-make SUBDIRS=drivers/net/can modules
-make SUBDIRS=drivers/spi modules
+# compile device tree files
 
-KERNEL=$(uname -r)
+wget -nv $REPORAW/src/mcp2515-can0-overlay.dts -O mcp2515-can0-overlay.dts
+wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs232-overlay.dts -O sc16is7xx-ttysc0-rs232-overlay.dts
+wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs485-overlay.dts -O sc16is7xx-ttysc0-rs485-overlay.dts
 
-mkdir -p /lib/modules/$KERNEL/kernel/drivers/net/can/spi
-mkdir -p /lib/modules/$KERNEL/kernel/drivers/tty/serial
+dtc -O dtb -o mcp2515-can0.dtbo mcp2515-can0-overlay.dts
+dtc -O dtb -o sc16is7xx-ttysc0-rs232.dtbo sc16is7xx-ttysc0-rs232-overlay.dts
+dtc -O dtb -o sc16is7xx-ttysc0-rs485.dtbo sc16is7xx-ttysc0-rs485-overlay.dts
 
-rm -f /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
-rm -f /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
-rm -f /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
+if [ ! -f "sc16is7xx-ttysc0-rs232.dtbo" ] || [ ! -f "sc16is7xx-ttysc0-rs485.dtbo" ] || [ ! -f "mcp2515-can0.dtbo" ]; then
+ echo "$ERR Error: Installation failed! (driver device tree build failed) $NC" 1>&2
+ whiptail --title "Error" --msgbox "Installation failed! (driver device tree build failed)" 10 60
+ exit 1
+fi
 
+/bin/cp -rf mcp251x.ko /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
+/bin/cp -rf sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
+# TODO /bin/cp -rf spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
 
+/bin/cp -rf mcp2515-can0.dtbo /boot/overlays/mcp2515-can0.dtbo
+/bin/cp -rf sc16is7xx-ttysc0-rs232.dtbo /boot/overlays/sc16is7xx-ttysc0-rs232.dtbo
+/bin/cp -rf sc16is7xx-ttysc0-rs485.dtbo /boot/overlays/sc16is7xx-ttysc0-rs485.dtbo
 
-rm -f /boot/overlays/mcp2515-can0-overlay.dtb
-rm -f /boot/overlays/sc16is7xx-ttysc0-overlay.dtb
-cp arch/arm/boot/dts/overlays/mcp2515-can0.dtbo /boot/overlays/mcp2515-can0.dtbo
-cp arch/arm/boot/dts/overlays/sc16is7xx-ttysc0.dtbo /boot/overlays/sc16is7xx-ttysc0.dtbo
-
-
-cp drivers/spi/spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
-cp drivers/net/can/spi/mcp251x.ko /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
-cp drivers/tty/serial/sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
-
+# register new driver modules
 depmod -a
 
 
-if [ ! -f "/lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko" ] || [ ! -f "/lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko" ]; then
-    echo "Error: Installation failed! (driver modules not installed)" 1>&2
-    exit 7
+
+WELCOME2="These configuration settings will automatically be made:\n
+- Install default config.txt
+- Install SocketCAN initialization as service
+- Install RTC initialization as service
+- Increase USB max. current
+- Enable I2C and SPI drivers
+- Set green LED as SD card activity LED\n"
+cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
+if (($? == 0)); then
+        WELCOME2=$WELCOME2"- Disable Bluetooth (enable serial console)\n"
+        WELCOME2=$WELCOME2"- Set CPU frequency to fixed 600MHZ\n"
 fi
 
-#rm -rf $INSTALLDIR
-#rm -f $INSTALLDIR.tar.gz
+WELCOME2=$WELCOME2"\ncontinue installation?"
+
+
+if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$WELCOME2" 18 60) then
+    echo ""
+else
+
+    update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
+    update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
+
+    exit 0
+fi
+
+
+echo "$INFO INFO: creating backup copy of config: /boot/config-backup-$DATE.txt $NC" 1>&2
+DATE=$(date +"%Y%m%d_%H%M%S")
+/bin/cp -rf /boot/config.txt /boot/config-backup-$DATE.txt
+
+echo "$INFO INFO: Using default config.txt $NC" 1>&2
+wget -nv $REPORAW/src/config.txt -O /boot/config.txt
+
+# if J301 is configured to RS485 mode
+gpio read gpio24 | grep "1" && sed -i 's/dtoverlay=sc16is7xx-ttysc0-rs232/dtoverlay=sc16is7xx-ttysc0-rs485/' /boot/config.txt
 
 
 # installing service to start can0 on boot
 if [ ! -f "/bin/systemctl" ]; then
-    echo "Warning: systemctl not found, cannot install can0.service" 1>&2
+    echo "$ERR Warning: systemctl not found, cannot install can0.service $NC" 1>&2
 else
-    wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/can0.service -O /lib/systemd/system/can0.service
+    wget -nv $REPORAW/src/can0.service -O /lib/systemd/system/can0.service
     systemctl enable can0.service
 fi
 
 
-if grep -q "sc16is7xx" "/boot/config.txt"; then
-        echo ""
-else
-        echo "INFO: Enabling I2C in /boot/config.txt"
-        echo "" >>/boot/config.txt
-        echo "dtparam=i2c_arm=on" >>/boot/config.txt
-        echo "INFO: Enabling SPI in /boot/config.txt"
-        echo "dtparam=spi=on" >>/boot/config.txt
-fi
 
-sed -i 's/dtoverlay=mcp2515/#dtoverlay=mcp2515/g' /boot/config.txt
-sed -i 's/dtoverlay=sc16is7xx/#dtoverlay=sc16is7xx/g' /boot/config.txt
-sed -i 's/dtoverlay=spi-bcm2835/#dtoverlay=spi-bcm2835/g' /boot/config.txt 
-
-echo "INFO: Installing CAN and RS232/RS485 driver DT in /boot/config.txt"
-if [ -f "/boot/overlays/mcp2515-can0-overlay.dtb" ]; then
-    echo "dtoverlay=mcp2515-can0-overlay,oscillator=16000000,interrupt=25" >>/boot/config.txt
-    echo "dtoverlay=sc16is7xx-ttysc0-overlay" >>/boot/config.txt
-    echo "dtoverlay=spi-bcm2835-overlay" >>/boot/config.txt
-fi
-
-if [ -f "/boot/overlays/mcp2515-can0.dtbo" ]; then
-    echo "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" >>/boot/config.txt
-    echo "dtoverlay=sc16is7xx-ttysc0" >>/boot/config.txt
-    #echo "dtoverlay=spi-bcm2835" >>/boot/config.txt
-fi
-
-
-if grep -q "sc16is7xx" "/etc/modules"; then
-        echo ""
-else
-        echo "INFO: Installing RS232/RS485 driver module in /etc/modules"
-        echo "sc16is7xx" >>/etc/modules
-fi
-
-if grep -q "sc16is7xx.RS485" "/boot/cmdline.txt"; then
-        echo ""
-else
-        echo "INFO: Configuring green LED as microSD-card activity LED in /boot/cmdline.txt"
-        sed -i 's/rootwait/rootwait bcm2709.disk_led_gpio=5 bcm2709.disk_led_active_low=0/g' /boot/cmdline.txt
-
-        echo "INFO: setting RS232/RS485 mode based on jumper J301 in /boot/cmdline.txt"
-        sed -i 's/rootwait/rootwait sc16is7xx.RS485=2/g' /boot/cmdline.txt
-fi
-
-
-if grep -q "ssh_host_dsa_key" "/etc/rc.local"; then
-        echo ""
-else
-        echo "INFO: Installating SSH key generation /etc/rc.local"
-        sed -i 's/exit 0//g' /etc/rc.local
-        echo "test -f /etc/ssh/ssh_host_dsa_key || dpkg-reconfigure openssh-server" >>/etc/rc.local
-        echo "exit 0" >>/etc/rc.local
-fi
-
-
-echo "INFO: Installating RTC hardware clock"
+echo "$INFO INFO: Installing RTC hardware clock $NC" 1>&2
 apt-get -y install i2c-tools
 # disable fake clock (systemd)
 systemctl disable fake-hwclock
@@ -322,7 +237,7 @@ update-rc.d fake-hwclock remove
 
 # enable hwclock (systemd)
 rm -f /lib/systemd/system/hwclock.service
-wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/hwclock.service -O /lib/systemd/system/hwclock.service
+wget -nv $REPORAW/src/hwclock.service -O /lib/systemd/system/hwclock.service
 systemctl unmask hwclock
 systemctl reenable hwclock
 
@@ -335,130 +250,77 @@ fi
 update-rc.d hwclock.sh enable
 
 
+echo "$INFO INFO: Disabling Bluetooth to use serial port $NC"
+systemctl disable hciuart
 
 
-if grep -q "max_usb_current=1" "/boot/config.txt"; then
+if grep -q "ssh_host_dsa_key" "/etc/rc.local"; then
         echo ""
 else
-        echo "" >>/boot/config.txt
-        echo "INFO: Configuring USB max current in /boot/config.txt"
-        echo "max_usb_current=1" >>/boot/config.txt
-fi
-
-cat /proc/cpuinfo | grep Revision | grep "082" >/dev/null
-if (($? == 0)); then
-	# Raspberry Pi 3B
-	echo "(Raspberry Pi 3B)"
-	
-	if grep -q "arm_freq=600" "/boot/config.txt"; then
-		echo ""
-	else
-		echo "INFO: Set CPU frequency to fixed 600MHZ"
-		echo "# Janz Tec AG: force 600MHZ" >>/boot/config.txt
-		echo "arm_freq=600" >>/boot/config.txt	
-	fi
-
-	if grep -q "dtoverlay=pi3-act-led" "/boot/config.txt"; then
-        	echo ""
-	else
-		echo "INFO: Enabling green LED as microSD activity LED"
-		echo "dtoverlay=pi3-act-led,gpio=5,activelow=off" >>/boot/config.txt
-	fi
-
-	if grep -q "dtoverlay=pi3-miniuart-bt" "/boot/config.txt"; then
-        	echo ""
-	else
-		echo "INFO: disabling Bluetooth to enable serial console with correct timing"
-		echo "dtoverlay=pi3-miniuart-bt" >>/boot/config.txt
-	fi
-	
-	if grep -q "dtoverlay=sdhost" "/boot/config.txt"; then
-		echo "WARN: dtoverlay=sdhost found in /boot/config.txt. If this is enabled, then WLAN will not work. "
-	        sed -i 's/dtoverlay=sdhost/#dtoverlay=sdhost/g' /boot/config.txt
-	fi
-
-else
-	# Raspberry PI 2B
-	echo "(Raspberry Pi 2B)"
-
-	if grep -q "dtparam=act_led_gpio=5" "/boot/config.txt"; then
-        	echo ""
-	else
-		echo "INFO: Enabling green LED as microSD activity LED"
-		echo "dtparam=act_led_gpio=5" >>/boot/config.txt
-	fi
-
-	if grep -q "dtoverlay=sdhost" "/boot/config.txt"; then
-	        echo ""
-	else
-        	echo "INFO: Enabling sdhost in /boot/config.txt"
-	        echo "" >>/boot/config.txt
-        	echo "dtoverlay=sdhost" >>/boot/config.txt
-	fi
-
+        echo "$INFO INFO: Installing SSH key generation /etc/rc.local $NC"
+        sed -i 's/exit 0//g' /etc/rc.local
+        echo "test -f /etc/ssh/ssh_host_dsa_key || dpkg-reconfigure openssh-server" >>/etc/rc.local
+        echo "exit 0" >>/etc/rc.local
 fi
 
 
-if grep -q "triple-sampling" "/etc/network/interfaces"; then
-        echo ""
-else
-        echo "INFO: Configuring auto start can0 at 500KBit in /etc/network/interfaces"
-        echo "" >>/etc/network/interfaces
-        echo "allow-hotplug can0" >>/etc/network/interfaces
-        echo "iface can0 inet manual" >>/etc/network/interfaces
-        echo -e "\tpre-up /sbin/ip link set can0 type can bitrate 500000 triple-sampling on" >>/etc/network/interfaces
-        echo -e "\tup /sbin/ifconfig can0 txqueuelen 1000" >>/etc/network/interfaces
-        echo -e "\tup /sbin/ifconfig can0 up" >>/etc/network/interfaces
-        echo -e "\tdown /sbin/ifconfig can0 down" >>/etc/network/interfaces
-fi
+
+
+wget -nv $REPORAW/scripts/empc-can-configbaudrate.sh -O /usr/sbin/empc-can-configbaudrate.sh
+chmod +x /usr/sbin/empc-can-configbaudrate.sh
+/usr/sbin/empc-can-configbaudrate.sh
 
 
 
 if [ ! -f "/usr/local/bin/cansend" ]; then
+ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "Third party SocketCan library and utilities\n\n- libsocketcan-0.0.10\n- can-utils\n - candump\n - cansend\n - cangen\n\ninstall?" 16 60) then
 
-    echo ""
-    echo "INFO: installing SocketCAN (libsocketcan) libraries and can-utils"
-    echo ""
-    
     apt-get -y install git
     apt-get -y install autoconf
     apt-get -y install libtool
 
-    cd /home/pi
-    
+    cd /usr/src/
+
     wget http://www.pengutronix.de/software/libsocketcan/download/libsocketcan-0.0.10.tar.bz2
     tar xvjf libsocketcan-0.0.10.tar.bz2
     rm -rf libsocketcan-0.0.10.tar.bz2
     cd libsocketcan-0.0.10
     ./configure && make && make install
 
-    cd /home/pi
+    cd /usr/src/
 
     git clone https://github.com/linux-can/can-utils.git
     cd can-utils
     ./autogen.sh
     ./configure && make && make install
 
+ fi
 fi
 
-update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
-update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
 
 
 if [ ! -f "/etc/CODESYSControl.cfg" ]; then
     echo ""
-else    
-    echo "INFO: CODESYS installation found"
-    wget -nv https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/codesys.sh -O /home/pi/codesys.sh
-    bash /home/pi/codesys.sh
+else
+    echo "$INFO INFO: CODESYS installation found $NC"
+
+ if (whiptail --title "CODESYS installation found" --yesno "CODESYS specific settings:\n- Set SYS_COMPORT1 to /dev/ttySC0\n- Install rts_set_baud.sh SocketCan script\n\ninstall?" 16 60) then
+
+    wget -nv $REPORAW/src/codesys-settings.sh -O /tmp/codesys-settings.sh
+    bash /tmp/codesys-settings.sh
+
+ fi
+
 fi
 
-# clean up
-rm -rf /home/pi/empc-arpi-linux
 
-echo
-echo "-----------------------------------------------"
-echo
-echo "INFO: Installation completed! restart required!"
-echo
+update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
+update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
 
+cd /
+
+if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "Installation completed! reboot required\n\nreboot now?" 12 60) then
+
+    reboot
+
+fi
