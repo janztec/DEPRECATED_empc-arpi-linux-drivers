@@ -162,7 +162,7 @@ fi
 
 /bin/cp -rf mcp251x.ko /lib/modules/$KERNEL/kernel/drivers/net/can/spi/mcp251x.ko
 /bin/cp -rf sc16is7xx.ko /lib/modules/$KERNEL/kernel/drivers/tty/serial/sc16is7xx.ko
-/bin/cp -rf spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
+# TODO /bin/cp -rf spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
 
 /bin/cp -rf mcp2515-can0.dtbo /boot/overlays/mcp2515-can0.dtbo
 /bin/cp -rf sc16is7xx-ttysc0-rs232.dtbo /boot/overlays/sc16is7xx-ttysc0-rs232.dtbo
