@@ -1,0 +1,12 @@
+[Unit]
+Description=can0 interface setup
+After=syslog.target local-fs.target network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/sbin/ip link set can0 up 
+ExecStop=/sbin/ip link set can0 down
+
+[Install]
+WantedBy=basic.target
