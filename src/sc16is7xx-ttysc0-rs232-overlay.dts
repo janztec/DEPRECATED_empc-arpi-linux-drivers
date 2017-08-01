@@ -56,6 +56,13 @@
 			status = "okay";
 		};
 	};
+	
+	 fragment@3 {
+                target = <&spidev1>;
+                __overlay__ {
+                        status = "disabled";
+                };
+        };
 
     __overrides__ {
       int_pin = <&sc16is740>,"interrupts:0";
