@@ -238,8 +238,9 @@ echo -e "$INFO INFO: Using default config.txt $NC" 1>&2
 wget -nv $REPORAW/src/config.txt -O /boot/config.txt
 
 # if J301 is configured to RS485 mode
-gpio read gpio24 | grep "1" && sed -i 's/dtoverlay=sc16is7xx-ttysc0-rs232/dtoverlay=sc16is7xx-ttysc0-rs485/' /boot/config.txt
-
+echo "24" > /sys/class/gpio/export
+echo "in" > /sys/class/gpio/gpio24/direction
+cat /sys/class/gpio/gpio24/value | grep "1" && sed -i 's/dtoverlay=sc16is7xx-ttysc0-rs232/dtoverlay=sc16is7xx-ttysc0-rs485/' /boot/config.txt
 
 # installing service to start can0 on boot
 if [ ! -f "/bin/systemctl" ]; then
