@@ -9,14 +9,14 @@
 		__overlay__ {
     
 			ttysc0_pins: ttysc0_pins {
-        brcm,pins = <17>;
-        brcm,function = <0>; /* input */
-      };
+        			brcm,pins = <17>;
+        			brcm,function = <0>; /* input */
+      			};
       
-      ttysc0_cs_pins: ttysc0_cs_pins {
+      			ttysc0_cs_pins: ttysc0_cs_pins {
 				brcm,pins = <7>;
 				brcm,function = <1>; /* output */
-      };
+      			};
 
 		};
 	};
@@ -26,27 +26,29 @@
 		frag1: __overlay__ {
 			#address-cells = <1>;
 			#size-cells = <0>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&ttysc0_pins &ttysc0_cs_pins>;
-			cs-gpios = <&gpio 7 1>;
-			status = "okay";
+			
+			//pinctrl-0 = <&ttysc0_pins &ttysc0_cs_pins>;			
+			//cs-gpios = <&gpio 7 1>;			
 
 			sc16is740: sc16is740@0 {
 				compatible = "nxp,sc16is740";
 				reg = <1>; /* CE1 */
 				clocks = <&sc16is740_clk>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&ttysc0_pins>;
 				interrupt-parent = <&gpio>;
-				interrupts = <17 2>; /* IRQ_TYPE_EDGE_FALLING */
+				interrupts = <17 2>; /* IRQ_TYPE_EDGE_FALLING */				
 				#gpio-controller;
 				#gpio-cells = <2>;
 				spi-max-frequency = <4000000>;
-        linux,rs485-enabled-at-boot-time;
-        rs485-rts-delay = <0 0>;
+				status = "okay";
+				linux,rs485-enabled-at-boot-time;
+				rs485-rts-delay = <0 0>;
 
 				sc16is740_clk: sc16is740_clk {
 					compatible = "fixed-clock";
 					#clock-cells = <0>;
-					clock-frequency = <14745600>;
+					clock-frequency = <1843200>;
 				};
 			};
 		};
@@ -58,6 +60,17 @@
 			status = "okay";
 		};
 	};
+	
+	fragment@3 {
+        	target = <&spi0>;
+        	__overlay__ {
+            		status = "okay";
+            		spidev@1{
+                		status = "disabled";
+            		};
+        	};
+	};
+	
 
     __overrides__ {
       int_pin = <&sc16is740>,"interrupts:0";
