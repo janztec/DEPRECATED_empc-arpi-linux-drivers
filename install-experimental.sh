@@ -1,19 +1,19 @@
 #!/bin/bash
 
-echo "INFO: does not work!!! resulting in error: could not find pctldev for node /soc/interrupt-controller@7e00b200, deferring probe "
-exit 1
-
+export LC_ALL=C
 
 REPORAW="https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master"
 
 ERR='\033[0;31m'
-INFO='\032[0;31m'
+INFO='\033[0;32m'
 NC='\033[0m' # No Color
 
 if [ $EUID -ne 0 ]; then
-    echo "$ERR ERROR: This script should be run as root. $NC" 1>&2
+    echo -e "$ERR ERROR: This script should be run as root. $NC" 1>&2
     exit 1
 fi
+
+lsb_release -a 2>1 | grep "Raspbian GNU/Linux" || (echo -e "$ERR ERROR: Raspbian GNU/Linux required! $NC" 1>&2; exit 1;)
 
 KERNEL=$(uname -r)
 
@@ -23,7 +23,7 @@ KERNELVER=$(($KERNELMAJ*100+$KERNELMIN));
 
 if [ $KERNELVER -le 408 ]; then
  
- echo "$ERR WARNING: kernel is outdated - $NC" 1>&2
+ echo -e "$ERR WARNING: kernel is outdated - $NC" 1>&2
  if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "WARNING: kernel is outdated ($KERNEL < 4.9.0)\n\nDo you want to continue anyway?" 10 60) then
     echo ""
  else
@@ -34,17 +34,17 @@ fi
 
 YEAR=$[`date +'%Y'`]
 if [ $YEAR -le 2016 ] ; then
-        echo "$ERR ERROR: invalid date. set current date and time! $NC" 1>&2
+        echo -e "$ERR ERROR: invalid date. set current date and time! $NC" 1>&2
         exit 1
 fi
 if [ $YEAR -ge 2020 ] ; then
-        echo "$ERR ERROR: invalid date. set current date and time! $NC" 1>&2
+        echo -e "$ERR ERROR: invalid date. set current date and time! $NC" 1>&2
         exit 1
 fi
 
 FREE=`df $PWD | awk '/[0-9]%/{print $(NF-2)}'`
 if [[ $FREE -lt 1048576 ]]; then
-  echo "$ERR ERROR: 1GB free disk space required (run raspi-config, 'Expand Filesystem') $NC" > /dev/stderr
+  echo -e "$ERR ERROR: 1GB free disk space required (run raspi-config, 'Expand Filesystem') $NC" > /dev/stderr
   exit 1
 fi
 
@@ -72,8 +72,7 @@ GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
 GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
 
 apt-get update -y
-apt-get -y install libncurses5-dev bc build-essential raspberrypi-kernel-headers
-apt-get -y install gcc-$GCCVER g++-$GCCVER
+apt-get -y install libncurses5-dev bc build-essential raspberrypi-kernel-headers device-tree-compiler gcc-$GCCVER g++-$GCCVER
 
 if [ ! -f "/usr/bin/gcc-$GCCVER" ] || [ ! -f "/usr/bin/g++-$GCCVER" ]; then
     echo "no such version gcc/g++ $GCCVER installed" 1>&2
@@ -91,7 +90,6 @@ update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCCVER 50
 
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVER"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVER"
-
 
 
 rm -rf /tmp/empc-arpi-linux-drivers
@@ -119,16 +117,44 @@ OPTIMIZATIONS="Optimizations of mainline drivers are available:\n
 if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 22 60) then
  
  # TODO: create patches 
- echo "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
- sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (200)/' spi-bcm2835.c
- echo "$INFO INFO: patching spi-bcm2835 with RT priority $NC" 1>&2
- sed -i 's/platform_set_drvdata(pdev, master);/platform_set_drvdata(pdev, master); master->rt = 1;/' spi-bcm2835.c
+ echo -e "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
+ sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (200)/w /tmp/changelog.txt' spi-bcm2835.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch failed! spi-bcm2835.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch 1 failed! spi-bcm2835.c" 10 60
+    exit 1
+ fi  
  
- echo "$INFO INFO: patching mcp251x.c with higher timeout to prevent can detection problems after soft-reboots $NC" 1>&2
- sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS	(25)/' mcp251x.c
+ echo -e "$INFO INFO: patching spi-bcm2835 with RT priority $NC" 1>&2
+ sed -i 's/platform_set_drvdata(pdev, master);/platform_set_drvdata(pdev, master); master->rt = 1;/w /tmp/changelog.txt' spi-bcm2835.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch failed! spi-bcm2835.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch 2 failed! spi-bcm2835.c" 10 60
+    exit 1
+ fi   
  
- echo "$INFO INFO: patching sc16is7xx.c with delay in startup to prevent message: unexpected interrupt: 8 $NC" 1>&2
- sed -i 's/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val);/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val); mdelay(1);/' sc16is7xx.c
+ echo -e "$INFO INFO: patching mcp251x.c with higher timeout to prevent can detection problems after soft-reboots $NC" 1>&2
+ sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS	(25)/w /tmp/changelog.txt' mcp251x.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch failed! mcp251x.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch failed! mcp251x.c" 10 60
+    exit 1
+ fi  
+  
+# fixed error message "unexpected interrupt: 8" in dmesg by added mdelay(1)
+# without delay, after enabling the interrupts in IER, set_baud/set_termios is immediatly called, 
+# enables enhanced register ("config mode") with LCR = 0xBF and the first interrupt occurs at
+# the same time, resulting in reading the IIR interrupt status register in the wrong mode.  
+# This problematic time window, from enabling the interrupts to handling them, is about 100µs, so a
+# delay of 1000µs=1ms was choosen 
+ 
+ echo -e "$INFO INFO: patching sc16is7xx.c with delay in startup to prevent message: unexpected interrupt: 8 $NC" 1>&2
+ sed -i 's/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val);/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val); mdelay(1);/w /tmp/changelog.txt' sc16is7xx.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch failed! sc16is7xx.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
+    exit 1
+ fi
 
 fi
 
@@ -143,7 +169,7 @@ echo -e "\tmake -C /lib/modules/$KERNEL/build M=/tmp/empc-arpi-linux-drivers mod
 make
 
 if [ ! -f "mcp251x.ko" ] || [ ! -f "sc16is7xx.ko" ] || [ ! -f "spi-bcm2835.ko" ]; then
- echo "$ERR Error: Installation failed! (driver modules build failed) $NC" 1>&2
+ echo -e "$ERR Error: Installation failed! (driver modules build failed) $NC" 1>&2
  whiptail --title "Error" --msgbox "Installation failed! (driver modules build failed)" 10 60
  exit 1
 fi
@@ -154,12 +180,12 @@ wget -nv $REPORAW/src/mcp2515-can0-overlay.dts -O mcp2515-can0-overlay.dts
 wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs232-overlay.dts -O sc16is7xx-ttysc0-rs232-overlay.dts
 wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs485-overlay.dts -O sc16is7xx-ttysc0-rs485-overlay.dts
 
-dtc -O dtb -o mcp2515-can0.dtbo mcp2515-can0-overlay.dts
-dtc -O dtb -o sc16is7xx-ttysc0-rs232.dtbo sc16is7xx-ttysc0-rs232-overlay.dts
-dtc -O dtb -o sc16is7xx-ttysc0-rs485.dtbo sc16is7xx-ttysc0-rs485-overlay.dts
+dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o mcp2515-can0.dtbo -b 0 mcp2515-can0-overlay.dts
+dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o sc16is7xx-ttysc0-rs232.dtbo -b 0 sc16is7xx-ttysc0-rs232-overlay.dts
+dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o sc16is7xx-ttysc0-rs485.dtbo -b 0 sc16is7xx-ttysc0-rs485-overlay.dts
 
 if [ ! -f "sc16is7xx-ttysc0-rs232.dtbo" ] || [ ! -f "sc16is7xx-ttysc0-rs485.dtbo" ] || [ ! -f "mcp2515-can0.dtbo" ]; then
- echo "$ERR Error: Installation failed! (driver device tree build failed) $NC" 1>&2
+ echo -e "$ERR Error: Installation failed! (driver device tree build failed) $NC" 1>&2
  whiptail --title "Error" --msgbox "Installation failed! (driver device tree build failed)" 10 60
  exit 1
 fi
@@ -204,11 +230,11 @@ else
 fi
 
 
-echo "$INFO INFO: creating backup copy of config: /boot/config-backup-$DATE.txt $NC" 1>&2
 DATE=$(date +"%Y%m%d_%H%M%S")
+echo -e "$INFO INFO: creating backup copy of config: /boot/config-backup-$DATE.txt $NC" 1>&2
 /bin/cp -rf /boot/config.txt /boot/config-backup-$DATE.txt
 
-echo "$INFO INFO: Using default config.txt $NC" 1>&2
+echo -e "$INFO INFO: Using default config.txt $NC" 1>&2
 wget -nv $REPORAW/src/config.txt -O /boot/config.txt
 
 # if J301 is configured to RS485 mode
@@ -217,7 +243,7 @@ gpio read gpio24 | grep "1" && sed -i 's/dtoverlay=sc16is7xx-ttysc0-rs232/dtover
 
 # installing service to start can0 on boot
 if [ ! -f "/bin/systemctl" ]; then
-    echo "$ERR Warning: systemctl not found, cannot install can0.service $NC" 1>&2
+    echo -e "$ERR Warning: systemctl not found, cannot install can0.service $NC" 1>&2
 else
     wget -nv $REPORAW/src/can0.service -O /lib/systemd/system/can0.service
     systemctl enable can0.service
@@ -225,7 +251,7 @@ fi
 
 
 
-echo "$INFO INFO: Installing RTC hardware clock $NC" 1>&2
+echo -e "$INFO INFO: Installing RTC hardware clock $NC" 1>&2
 apt-get -y install i2c-tools
 # disable fake clock (systemd)
 systemctl disable fake-hwclock
@@ -254,14 +280,14 @@ fi
 update-rc.d hwclock.sh enable
 
 
-echo "$INFO INFO: Disabling Bluetooth to use serial port $NC"
+echo -e "$INFO INFO: Disabling Bluetooth to use serial port $NC"
 systemctl disable hciuart
 
 
 if grep -q "ssh_host_dsa_key" "/etc/rc.local"; then
         echo ""
 else
-        echo "$INFO INFO: Installing SSH key generation /etc/rc.local $NC"
+        echo -e "$INFO INFO: Installing SSH key generation /etc/rc.local $NC"
         sed -i 's/exit 0//g' /etc/rc.local
         echo "test -f /etc/ssh/ssh_host_dsa_key || dpkg-reconfigure openssh-server" >>/etc/rc.local
         echo "exit 0" >>/etc/rc.local
@@ -306,7 +332,7 @@ fi
 if [ ! -f "/etc/CODESYSControl.cfg" ]; then
     echo ""
 else
-    echo "$INFO INFO: CODESYS installation found $NC"
+    echo -e "$INFO INFO: CODESYS installation found $NC"
 
  if (whiptail --title "CODESYS installation found" --yesno "CODESYS specific settings:\n- Set SYS_COMPORT1 to /dev/ttySC0\n- Install rts_set_baud.sh SocketCan script\n\ninstall?" 16 60) then
 
