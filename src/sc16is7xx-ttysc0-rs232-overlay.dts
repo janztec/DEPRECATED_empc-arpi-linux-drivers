@@ -27,8 +27,9 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&ttysc0_pins &ttysc0_cs_pins>;
-			cs-gpios = <&gpio 7 1>;
+			//pinctrl-0 = <&ttysc0_pins &ttysc0_cs_pins>;
+			pinctrl-0 = <&ttysc0_pins>;
+			//cs-gpios = <&gpio 7 1>;
 			status = "okay";
 
 			sc16is740: sc16is740@0 {
