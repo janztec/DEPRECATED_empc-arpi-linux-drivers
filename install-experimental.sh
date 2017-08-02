@@ -158,13 +158,13 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
     exit 1
  fi
  
- echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
- sed -i 's/IRQF_ONESHOT | flags/IRQF_TRIGGER_LOW | IRQF_ONESHOT/w /tmp/changelog.txt' sc16is7xx.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 2 failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
-    exit 1
- fi 
+ #echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
+ #sed -i 's/IRQF_ONESHOT | flags/IRQF_TRIGGER_LOW | IRQF_ONESHOT/w /tmp/changelog.txt' sc16is7xx.c
+ #if [[ ! -s /tmp/changelog.txt ]]; then
+ #   echo -e "$ERR Error: Patch 2 failed! sc16is7xx.c $NC" 1>&2
+ #   whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
+ #   exit 1
+ #fi 
  
  echo -e "$INFO INFO: patching mcp251x.c to IRQF_TRIGGER_LOW $NC" 1>&2
  sed -i 's/flags | IRQF_ONESHOT/IRQF_TRIGGER_LOW | IRQF_ONESHOT/w /tmp/changelog.txt' mcp251x.c
