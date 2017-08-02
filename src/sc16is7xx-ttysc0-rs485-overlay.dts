@@ -37,7 +37,7 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&ttysc0_pins>;
 				interrupt-parent = <&gpio>;
-				interrupts = <17 2>; /* IRQ_TYPE_EDGE_FALLING */				
+				interrupts = <17 0x8>; /* IRQ_TYPE_LEVEL_LOW */				
 				#gpio-controller;
 				#gpio-cells = <2>;
 				spi-max-frequency = <4000000>;
