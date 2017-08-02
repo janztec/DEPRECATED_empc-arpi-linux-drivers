@@ -23,7 +23,7 @@ if [ $exitstatus = 0 ]; then
 
     while read -r line
     do
-     [[ ! $s =~ can0 ]] && echo "$line"
+     [[ ! "$line" =~ "can0" ]] && echo "$line"
     done </etc/network/interfaces > /tmp/interfaces
     mv /tmp/interfaces /etc/network/interfaces
 
