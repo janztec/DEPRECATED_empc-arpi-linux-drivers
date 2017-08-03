@@ -117,9 +117,9 @@ OPTIMIZATIONS="Optimizations of mainline drivers are available:\n
 
 if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 24 60) then
  
- sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A/RPI3: /' spi-bcm2835.c
- sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A/RPI3: /' mcp251x.c
- sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A/RPI3: /' sc16is7xx.c
+ sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A\/RPI3: /' spi-bcm2835.c
+ sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A\/RPI3: /' mcp251x.c
+ sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A\/RPI3: /' sc16is7xx.c
  
  # TODO: create patches 
  echo -e "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
@@ -162,7 +162,7 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
  fi
  
 # echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
-# sed -i 's/irq, flags/irq, IRQF_TRIGGER_LOW/w /tmp/changelog.txt' sc16is7xx.c
+# sed -i 's/irq, flags/irq, IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' sc16is7xx.c
 # if [[ ! -s /tmp/changelog.txt ]]; then
 #    echo -e "$ERR Error: Patch 2 failed! sc16is7xx.c $NC" 1>&2
 #    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
@@ -170,7 +170,7 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
 # fi 
  
  echo -e "$INFO INFO: patching mcp251x.c to IRQF_TRIGGER_LOW $NC" 1>&2
- sed -i 's/IRQF_TRIGGER_FALLING/IRQF_TRIGGER_LOW/w /tmp/changelog.txt' mcp251x.c
+ sed -i 's/IRQF_TRIGGER_FALLING/IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' mcp251x.c
  if [[ ! -s /tmp/changelog.txt ]]; then
     echo -e "$ERR Error: Patch 2 failed! mcp251x.c $NC" 1>&2
     whiptail --title "Error" --msgbox "Patch failed! mcp251x.c" 10 60
