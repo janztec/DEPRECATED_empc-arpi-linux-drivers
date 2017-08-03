@@ -22,14 +22,14 @@ PATCHLEVEL=$(echo $KERNEL | cut -d. -f2)
 SUBLEVEL=$(echo $KERNEL | cut -d. -f3 | cut -d- -f1)
 
 KERNELVER=$(($VERSION*100+$PATCHLEVEL));
- 
+
+if [ $KERNELVER -le 408 ]; then 
  echo -e "$ERR WARNING: kernel is outdated - $NC" 1>&2
  if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "WARNING: kernel is outdated ($KERNEL < 4.9.0)\n\nDo you want to continue anyway?" 10 60) then
     echo ""
  else
    exit 0
  fi
-
 fi
 
 YEAR=$[`date +'%Y'`]
