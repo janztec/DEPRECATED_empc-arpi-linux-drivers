@@ -117,6 +117,10 @@ OPTIMIZATIONS="Optimizations of mainline drivers are available:\n
 
 if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 24 60) then
  
+ sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A/RPI3: /' spi-bcm2835.c
+ sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A/RPI3: /' mcp251x.c
+ sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A/RPI3: /' sc16is7xx.c
+ 
  # TODO: create patches 
  echo -e "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
  sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (200)/w /tmp/changelog.txt' spi-bcm2835.c
