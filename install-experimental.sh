@@ -177,17 +177,20 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
     exit 1
  fi 
   
- sed -i 's/kthread_queue_work(&s->kworker, &s->irq_work);/disable_irq_nosync(irq); kthread_queue_work(&s->kworker, &s->irq_work);/w /tmp/changelog.txt' sc16is7xx.c
+  
+ 
+  
+ sed -i 's/kthread_queue_work(\&s->kworker, \&s->irq_work);/disable_irq_nosync(irq); kthread_queue_work(\&s->kworker ,\&s->irq_work);/w /tmp/changelog.txt' sc16is7xx.c
  if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 3 failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch 3 failed! sc16is7xx.c" 10 60
+    echo -e "$ERR Error: Patch 4 failed! sc16is7xx.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch 4 failed! sc16is7xx.c" 10 60
     exit 1
  fi 
   
  sed -i 's/sc16is7xx_port_irq(s, i);/sc16is7xx_port_irq(s, i); enable_irq(s->irq);/w /tmp/changelog.txt' sc16is7xx.c
  if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 4 failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch 4 failed! sc16is7xx.c" 10 60
+    echo -e "$ERR Error: Patch 5 failed! sc16is7xx.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch 5 failed! sc16is7xx.c" 10 60
     exit 1
  fi  
  
