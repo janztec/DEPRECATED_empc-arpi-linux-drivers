@@ -161,13 +161,13 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
     exit 1
  fi
  
-# echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
-# sed -i 's/irq, flags/irq, IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' sc16is7xx.c
-# if [[ ! -s /tmp/changelog.txt ]]; then
-#    echo -e "$ERR Error: Patch 2 failed! sc16is7xx.c $NC" 1>&2
-#    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
-#    exit 1
-# fi 
+ echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
+ sed -i 's/spi->irq, flags/spi->irq, IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' sc16is7xx.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch 2 failed! sc16is7xx.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
+    exit 1
+ fi 
  
  echo -e "$INFO INFO: patching mcp251x.c to IRQF_TRIGGER_LOW $NC" 1>&2
  sed -i 's/IRQF_TRIGGER_FALLING/IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' mcp251x.c
@@ -175,8 +175,22 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
     echo -e "$ERR Error: Patch 2 failed! mcp251x.c $NC" 1>&2
     whiptail --title "Error" --msgbox "Patch failed! mcp251x.c" 10 60
     exit 1
-fi 
-
+ fi 
+  
+ sed -i 's/kthread_queue_work(&s->kworker, &s->irq_work);/disable_irq_nosync(irq); kthread_queue_work(&s->kworker, &s->irq_work);/w /tmp/changelog.txt' sc16is7xx.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch 3 failed! sc16is7xx.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch 3 failed! sc16is7xx.c" 10 60
+    exit 1
+ fi 
+  
+ sed -i 's/sc16is7xx_port_irq(s, i);/sc16is7xx_port_irq(s, i); enable_irq(s->irq);/w /tmp/changelog.txt' sc16is7xx.c
+ if [[ ! -s /tmp/changelog.txt ]]; then
+    echo -e "$ERR Error: Patch 4 failed! sc16is7xx.c $NC" 1>&2
+    whiptail --title "Error" --msgbox "Patch 4 failed! sc16is7xx.c" 10 60
+    exit 1
+ fi  
+ 
 fi
 
 
