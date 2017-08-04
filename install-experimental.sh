@@ -2,6 +2,47 @@
 
 export LC_ALL=C
 
+
+# patch function: find line containing <string start>, search for line containing <string end>, insert last argument as line before end
+# <filename> <string start> <string end> <string to insert before end>
+function insert2file {
+        found=0
+        ok=0
+        while IFS= read -r line
+        do
+                if [[ "$line" =~ "$2" ]]; then
+                        found=1
+                fi
+                if [[ "$line" =~ "$3" ]]; then
+                        if [[ $found == 1 ]]; then
+                                printf "$4\n"
+                                ok=1
+                        fi
+                        found=0
+                fi
+                echo "$line"
+        done < $1 >/tmp/patch.tmp
+        /bin/mv -f /tmp/patch.tmp $1
+
+        if [[ $ok == 0 ]]; then
+                echo -e "$ERR Error: Patch failed! $1 $NC" 1>&2
+                whiptail --title "Error" --msgbox "Patch failed! $1" 10 60
+                exit 1
+        fi
+}
+
+# patch function: replaces <search> with <replace> 
+# <filename> <search> <replace>
+function patchfile {
+        sed -i "s/$2/$3/w /tmp/changelog.txt" $1
+        if [[ ! -s /tmp/changelog.txt ]]; then
+                echo -e "$ERR Error: Patch failed! $1 $NC" 1>&2
+                whiptail --title "Error" --msgbox "Patch failed! $1" 10 60
+                exit 1
+        fi
+}
+
+
 REPORAW="https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master"
 
 ERR='\033[0;31m'
@@ -117,82 +158,45 @@ OPTIMIZATIONS="Optimizations of mainline drivers are available:\n
 
 if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 24 60) then
  
+ # TODO: create patches 
+ 
  sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A\/RPI3: /' spi-bcm2835.c
  sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A\/RPI3: /' mcp251x.c
  sed -i 's/MODULE_DESCRIPTION("/MODULE_DESCRIPTION("optimized for emPC-A\/RPI3: /' sc16is7xx.c
  
- # TODO: create patches 
+ 
+ # SPI driver
+ 
  echo -e "$INFO INFO: patching spi-bcm2835.c with higher polling limit $NC" 1>&2
- sed -i 's/#define BCM2835_SPI_POLLING_LIMIT_US.*/#define BCM2835_SPI_POLLING_LIMIT_US (200)/w /tmp/changelog.txt' spi-bcm2835.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch failed! spi-bcm2835.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch 1 failed! spi-bcm2835.c" 10 60
-    exit 1
- fi  
+ patchfile spi-bcm2835.c "#define BCM2835_SPI_POLLING_LIMIT_US.*" "#define BCM2835_SPI_POLLING_LIMIT_US (200)"
  
  echo -e "$INFO INFO: patching spi-bcm2835 with RT priority $NC" 1>&2
- sed -i 's/platform_set_drvdata(pdev, master);/platform_set_drvdata(pdev, master); master->rt = 1;/w /tmp/changelog.txt' spi-bcm2835.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch failed! spi-bcm2835.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch 2 failed! spi-bcm2835.c" 10 60
-    exit 1
- fi   
+ insert2file spi-bcm2835.c "static int bcm2835_spi_probe" "master->" "\tmaster->rt = 1;"
  
- echo -e "$INFO INFO: patching mcp251x.c with higher timeout to prevent can detection problems after soft-reboots $NC" 1>&2
- sed -i 's/#define MCP251X_OST_DELAY_MS.*/#define MCP251X_OST_DELAY_MS	(25)/w /tmp/changelog.txt' mcp251x.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch failed! mcp251x.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch failed! mcp251x.c" 10 60
-    exit 1
- fi  
-  
+ 
+# SERIAL driver
+ 
+ echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
+ insert2file sc16is7xx.c "static int sc16is7xx_probe" "_irq" "\tflags = IRQF_TRIGGER_LOW;"
+ insert2file sc16is7xx.c "}" "static void sc16is7xx_ist" "static int s_irq=0;"
+ insert2file sc16is7xx.c "static irqreturn_t sc16is7xx_irq" "kthread_queue_work" "\tdisable_irq_nosync(s_irq=irq);"
+ insert2file sc16is7xx.c "static void sc16is7xx_ist" "}" "\tif(s_irq!=0) enable_irq(s_irq);"
+ 
 # fixed error message "unexpected interrupt: 8" in dmesg by added mdelay(1)
 # without delay, after enabling the interrupts in IER, set_baud/set_termios is immediatly called, 
 # enables enhanced register ("config mode") with LCR = 0xBF and the first interrupt occurs at
 # the same time, resulting in reading the IIR interrupt status register in the wrong mode.  
 # This problematic time window, from enabling the interrupts to handling them, is about 100µs, so a
 # delay of 1000µs=1ms was choosen 
+ insert2file sc16is7xx.c "static int sc16is7xx_startup" "return 0" "\tmdelay(1);"
+
+
+ # CAN driver
+ echo -e "$INFO INFO: patching mcp251x.c to IRQF_TRIGGER_LOW | IRQF_ONESHOT $NC" 1>&2
+ insert2file mcp251x.c "static int mcp251x_open" "threaded_irq" "\tflags = IRQF_TRIGGER_LOW | IRQF_ONESHOT;"
  
- echo -e "$INFO INFO: patching sc16is7xx.c with delay in startup to prevent message: unexpected interrupt: 8 $NC" 1>&2
- sed -i 's/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val);/sc16is7xx_port_write(port, SC16IS7XX_IER_REG, val); mdelay(1);/w /tmp/changelog.txt' sc16is7xx.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
-    exit 1
- fi
- 
- echo -e "$INFO INFO: patching sc16is7xx.c to IRQF_TRIGGER_LOW $NC" 1>&2
- sed -i 's/spi->irq, flags/spi->irq, IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' sc16is7xx.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 2 failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch failed! sc16is7xx.c" 10 60
-    exit 1
- fi 
- 
- echo -e "$INFO INFO: patching mcp251x.c to IRQF_TRIGGER_LOW $NC" 1>&2
- sed -i 's/IRQF_TRIGGER_FALLING/IRQF_TRIGGER_LOW/gw /tmp/changelog.txt' mcp251x.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 2 failed! mcp251x.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch failed! mcp251x.c" 10 60
-    exit 1
- fi 
-  
-  
- sed -i "s/static void sc16is7xx_ist/static int s_irq=0; static void sc16is7xx_ist/" sc16is7xx.c
-  
- sed -i 's/kthread_queue_work(\&s->kworker, \&s->irq_work);/disable_irq_nosync(s_irq); kthread_queue_work(\&s->kworker ,\&s->irq_work);/w /tmp/changelog.txt' sc16is7xx.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 4 failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch 4 failed! sc16is7xx.c" 10 60
-    exit 1
- fi 
-  
- sed -i 's/sc16is7xx_port_irq(s, i);/sc16is7xx_port_irq(s, i); enable_irq(s_irq);/w /tmp/changelog.txt' sc16is7xx.c
- if [[ ! -s /tmp/changelog.txt ]]; then
-    echo -e "$ERR Error: Patch 5 failed! sc16is7xx.c $NC" 1>&2
-    whiptail --title "Error" --msgbox "Patch 5 failed! sc16is7xx.c" 10 60
-    exit 1
- fi  
+ echo -e "$INFO INFO: patching mcp251x.c with higher timeout to prevent can detection problems after soft-reboots $NC" 1>&2
+ patchfile mcp251x.c "#define MCP251X_OST_DELAY_MS.*" "#define MCP251X_OST_DELAY_MS	(25)"
  
 fi
 
@@ -238,7 +242,6 @@ fi
 
 # register new driver modules
 depmod -a
-
 
 
 WELCOME2="These configuration settings will automatically be made:\n
