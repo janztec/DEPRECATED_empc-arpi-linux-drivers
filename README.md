@@ -3,7 +3,7 @@
 
 ## Installation Instructions:
 
-Step1:
+### Step1:
 
 Install one of the listed RASPBIAN operating system versions from below: 
 
@@ -13,11 +13,15 @@ Install one of the listed RASPBIAN operating system versions from below:
 
 install.sh script is currently supported for **emPC-A/RPI3** **Raspbian Jessie Lite version 2016-09-28**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2016-09-28/
 
+<br />
+<br />
 
 **Raspbian Jessie Lite version 2015-11-24** 
 
 install.sh script is currently supported for **emPC-A/RPI** **Raspbian Jessie Lite version 2015-11-24**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ 
 
+<br />
+<br />
 
 **Experimental! Raspbian Jessie Lite or Raspbian Jessie Desktop 2017-07-05 or later**
 
@@ -25,13 +29,15 @@ In newer Raspbian images the Linux kernel is installed in version 4.9 (or later)
 
 install-experimental.sh script uses the mainline kernel driver sources with only a few source code patches, see install-experimental.sh for more details. Our performance optimizations of the CAN, UART and SPI drivers are currently not included in these mainline drivers.   
 
+<br />
+<br />
 
-Step 2:
+### Step 2:
 ```
 apt-get update
 ```
 
-Step 3:
+### Step 3:
 ```
 sudo bash
 
