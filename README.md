@@ -5,13 +5,26 @@
 
 Step1:
 
-Install RASPBIAN operating system from https://www.raspberrypi.org/downloads/ 
+Install one of the listed RASPBIAN operating system versions from below: 
 
 (Raspbian Jessie Lite, or Raspbian Jessie recommended. NOOBS installation **not** supported)
 
-( this script is currently supported for **emPC-A/RPI3** **Raspbian Jessie Lite version 2016-09-28**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2016-09-28/ )
+** Raspbian Jessie Lite version 2016-09-28 **
 
-( this script is currently supported for **emPC-A/RPI** **Raspbian Jessie Lite version 2015-11-24**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ )
+install.sh script is currently supported for **emPC-A/RPI3** **Raspbian Jessie Lite version 2016-09-28**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2016-09-28/
+
+
+** Raspbian Jessie Lite version 2015-11-24 ** 
+
+install.sh script is currently supported for **emPC-A/RPI** **Raspbian Jessie Lite version 2015-11-24**: https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ 
+
+
+** Experimental! Raspbian Jessie Lite or Raspbian Jessie Desktop 2017-07-05 or later **
+
+In newer Raspbian images the Linux kernel is installed in version 4.9 (or later) and therefore the script install.sh will no longer work correctly. For this newer Linux kernel versions, our new driver installation script install-experimental.sh is still under development. 
+
+install-experimental.sh script uses the mainline kernel driver sources with only a few source code patches, see install-experimental.sh for more details. Our performance optimizations of the CAN, UART and SPI drivers are currently not included in these mainline drivers.   
+
 
 Step 2:
 ```
@@ -25,6 +38,8 @@ sudo bash
 cd /home/pi
 
 wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install.sh -O /home/pi/install.sh
+
+#wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install-experimental.sh -O /home/pi/install-experimental.sh
 
 bash install.sh
 ```
