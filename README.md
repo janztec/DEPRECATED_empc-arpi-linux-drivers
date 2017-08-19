@@ -48,6 +48,8 @@ wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/in
 #wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install-experimental.sh -O /home/pi/install-experimental.sh
 
 bash install.sh
+
+rm install.sh
 ```
 
 ## Product page
