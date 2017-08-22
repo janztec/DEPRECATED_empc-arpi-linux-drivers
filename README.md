@@ -23,7 +23,7 @@ install.sh script is currently supported for **emPC-A/RPI** **Raspbian Jessie Li
 <br />
 <br />
 
-**Experimental! Raspbian Jessie Lite or Raspbian Jessie Desktop 2017-07-05 or later**
+**Experimental! Raspbian Stretch Lite or Raspbian Stretch Desktop 2017-08-16 or later**
 
 In newer Raspbian images the Linux kernel is installed in version 4.9 (or later) and therefore the script install.sh will no longer work correctly. For this newer Linux kernel versions, our new driver installation script install-experimental.sh is still under development. 
 
