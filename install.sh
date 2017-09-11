@@ -116,7 +116,9 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
 	#wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzM0 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
 	#wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzY5 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt 
         
-        wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree >links.txt
+	# linux-4.4.21-v7+
+	echo "/raspberrypi/firmware/tree/daf5fb3fa196eef6327697ee4994ad8e0cc2679f/extra/Module7.symvers" >links.txt
+        wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree >>links.txt
         # pagination does no longer work! wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?page=2 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree | grep Module7.symvers >>links.txt
 	wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzM0 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree >>links.txt
 	wget -nv https://github.com/raspberrypi/firmware/commits/master/extra/Module7.symvers?after=Y3Vyc29yOlCb6qsOECz23s8gmSJmlwDJrFV2KzY5 -O - | sed -n 's/.*href="\([^"]*\).*/\1/p' | grep tree >>links.txt 
