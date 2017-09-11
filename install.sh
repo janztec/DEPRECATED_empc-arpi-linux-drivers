@@ -125,6 +125,9 @@ if [ ! -f "linux-$KERNEL.tar.gz" ]; then
         link=""
         matchedlink="err"
         while read link; do
+	
+	  link=$link"/extra/Module7.symvers"
+	
           echo "INFO: downloading: $link"
           if wget -nv "https://github.com$link" -O - | grep module_layout | grep $LAYOUT; then
             echo "INFO: found matching revision!"
