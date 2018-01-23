@@ -13,9 +13,17 @@ else
     echo "" >>/etc/CODESYSControl.cfg
     echo "[SysCom]" >>/etc/CODESYSControl.cfg
     echo "Linux.Devicefile=/dev/ttySC" >>/etc/CODESYSControl.cfg
-    echo "portnum := COM.SysCom.SYS_COMPORT1;" >>/etc/CODESYSControl.cfg
+    echo "portnum := COM.SysCom.SYS_COMPORT1;" >>/etc/CODESYSControl.cfg  
 fi    
 
+if grep -q "CmpSocketCanDrv" "/etc/CODESYSControl.cfg"; then
+        echo ""
+else
+    echo "" >>/etc/CODESYSControl.cfg
+    echo "[CmpSocketCanDrv]" >>/etc/CODESYSControl.cfg
+    echo "ScriptPath=/root/" >>/etc/CODESYSControl.cfg
+    echo "ScriptName=rts_set_baud.sh" >>/etc/CODESYSControl.cfg
+fi
 
 echo "INFO: installing rts_set_baud.sh"
 
