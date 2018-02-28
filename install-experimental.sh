@@ -106,6 +106,15 @@ else
     exit 0
 fi
 
+
+# get installed gcc version
+GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
+# get gcc version of installed kernel
+GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
+
+apt-get update -y
+apt-get -y install libncurses5-dev bc build-essential raspberrypi-kernel-headers device-tree-compiler gcc-$GCCVER g++-$GCCVER
+
 headerversion=$(dpkg -l | grep raspberrypi-kernel-headers | awk '{ print $3 }')
 kernelversion=$(dpkg -l | grep raspberrypi-kernel | grep bootloader | awk '{ print $3 }')
 
@@ -115,14 +124,6 @@ else
         echo -e "$ERR WARNING: kernel is outdated! use 'apt-get install raspberrypi-kernel' to install latest kernel. Then restart and run this script again - $NC" 1>&2
         exit 1
 fi
-
-# get installed gcc version
-GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)
-# get gcc version of installed kernel
-GCCVER=$(cat /proc/version | egrep -o 'gcc version [0-9]+\.[0-9]+' | egrep -o '[0-9.]+')
-
-apt-get update -y
-apt-get -y install libncurses5-dev bc build-essential raspberrypi-kernel-headers device-tree-compiler gcc-$GCCVER g++-$GCCVER
 
 if [ ! -f "/usr/bin/gcc-$GCCVER" ] || [ ! -f "/usr/bin/g++-$GCCVER" ]; then
     echo "no such version gcc/g++ $GCCVER installed" 1>&2
