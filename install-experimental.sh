@@ -367,14 +367,14 @@ if [ ! -f "/usr/local/bin/cansend" ]; then
     tar xvjf libsocketcan-0.0.10.tar.bz2
     rm -rf libsocketcan-0.0.10.tar.bz2
     cd libsocketcan-0.0.10
-    ./configure && make && make install
+    ./configure && make -j4 && make install
 
     cd /usr/src/
 
     git clone https://github.com/linux-can/can-utils.git
     cd can-utils
     ./autogen.sh
-    ./configure && make && make install
+    ./configure && make -j4 && make install
 
  fi
 fi
