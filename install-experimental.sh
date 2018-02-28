@@ -121,7 +121,7 @@ kernelversion=$(dpkg -l | grep raspberrypi-kernel | grep bootloader | awk '{ pri
 if [ "$headerversion" == "$kernelversion" ]; then
         echo -e "$INFO INFO: found kernel header version $headerversion $NC" 1>&2
 else
-        echo -e "$ERR WARNING: kernel is outdated! use 'apt-get install raspberrypi-kernel' to install latest kernel. Then restart and run this script again - $NC" 1>&2
+        echo -e "$ERR WARNING: kernel is outdated! use 'apt-get install raspberrypi-kernel' to install latest kernel. Then reboot and run this script again - $NC" 1>&2
         exit 1
 fi
 
