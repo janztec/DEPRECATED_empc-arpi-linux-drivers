@@ -74,7 +74,7 @@ bash install-experimental.sh
 <br />
 
 ## Product pages
-https://www.janztec.com/en/products/embedded-computing/empc/empc-arpi3/
+https://www.janztec.com/en/embedded-pc/embedded-computer/empc-arpi3/
 
 **emPC-A/RPI3**
 
@@ -109,7 +109,7 @@ https://www.janztec.com/en/products/embedded-computing/empc/empc-arpi3/
 
 **emVIEW-7/RPI3**
 
-https://www.janztec.com/en/products/embedded-computing/panel-pc/emview-7rpi3/
+https://www.janztec.com/en/embedded-pc/panel-pc/emview-7rpi3/
 
 ![emVIEW-7/RPI3](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emVIEW-7-RPI3/janz_tec_produkte_embedded_emVIEW-7_RPI3_front_schraeg_800x8001.jpg)
 
