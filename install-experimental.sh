@@ -396,6 +396,17 @@ else
 fi
 
 
+if grep -q "sc16is7xx" "/etc/profile"; then
+        echo ""
+else
+        echo -e "$INFO INFO: Installing driver installation check in /etc/profile $NC"
+        echo "" >>/etc/profile
+        echo "/sbin/lsmod | /bin/grep sc16is7xx >>/dev/null || /bin/echo -e \"\033[1;31mError:\033[0m driver for emPC-A/RPI RS232/RS485 port not loaded! installation instructions: https://github.com/janztec/empc-arpi-linux-drivers\"" >>/etc/profile
+        echo "/sbin/lsmod | /bin/grep mcp251x >>/dev/null || /bin/echo -e \"\033[1;31mError:\033[0m driver for emPC-A/RPI CAN port not loaded! installation instructions: https://github.com/janztec/empc-arpi-linux-drivers\"" >>/etc/profile
+        echo "/sbin/lsmod | /bin/grep rtc_ds1307 >>/dev/null || /bin/echo -e \"\033[1;31mError:\033[0m driver for emPC-A/RPI RTC not loaded! installation instructions: https://github.com/janztec/empc-arpi-linux-drivers\"" >>/etc/profile
+fi
+
+
 update-alternatives --set gcc "/usr/bin/gcc-$GCCVERBACKUP"
 update-alternatives --set g++ "/usr/bin/g++-$GCCVERBACKUP"
 
