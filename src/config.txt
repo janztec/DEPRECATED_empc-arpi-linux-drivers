@@ -69,8 +69,9 @@ dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
 #   NOT SET (RS485): use overlay: sc16is7xx-ttysc0-rs485
 dtoverlay=sc16is7xx-ttysc0-rs232
 
-# enable more than 600mA for USB ports
-max_usb_current=1
+[pi3+]
+# disable more than 600mA for USB ports
+max_usb_current=0
 
 [pi3]
 # forces fixed 600MHz CPU frequency (see manual)
@@ -82,11 +83,17 @@ dtoverlay=pi3-act-led,gpio=5,activelow=off
 # disables Bluetooth and restores UART0/ttyAMA0
 dtoverlay=pi3-miniuart-bt
 
+# enable more than 600mA for USB ports
+max_usb_current=1
+
 [pi2]
 # green LED (gpio5) as SD card activity
 dtparam=act_led_gpio=5
 
 # selects the bcm2835-sdhost SD/MMC driver
 dtoverlay=sdhost
+
+# enable more than 600mA for USB ports
+max_usb_current=1
 
 [all]
