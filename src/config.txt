@@ -70,6 +70,15 @@ dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
 dtoverlay=sc16is7xx-ttysc0-rs232
 
 [pi3+]
+# forces fixed 600MHz CPU frequency (see manual)
+arm_freq=600
+
+# green LED (gpio5) as SD card activity
+dtoverlay=pi3-act-led,gpio=5,activelow=off
+
+# disables Bluetooth and restores UART0/ttyAMA0
+dtoverlay=pi3-miniuart-bt
+
 # disable more than 600mA for USB ports
 max_usb_current=0
 
