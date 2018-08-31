@@ -200,6 +200,9 @@ if (whiptail --title "emPC-A/RPI3 Installation Script" --yesno "$OPTIMIZATIONS" 
 # delay of 1000µs=1ms was choosen 
  insert2file sc16is7xx.c "static int sc16is7xx_startup" "return 0" "\tmdelay(1);"
 
+ # enable read of CTR bit in modem status register /*MSR[4] CTS*/
+ echo -e "$INFO INFO: sc16is7xx.c to support CTS modem status bit $NC" 1>&2
+ insert2file sc16is7xx.c "static unsigned int sc16is7xx_get_mctrl" "return TIOCM_DSR | TIOCM_CAR" "\tif (sc16is7xx_port_read(port, SC16IS7XX_MSR_REG ) & 0x10) return TIOCM_DSR | TIOCM_CAR | TIOCM_CTS;"
 
  # CAN driver
  echo -e "$INFO INFO: patching mcp251x.c to IRQF_TRIGGER_LOW | IRQF_ONESHOT $NC" 1>&2
