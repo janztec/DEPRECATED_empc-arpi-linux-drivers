@@ -23,6 +23,18 @@ fi
 
 KERNEL=$(uname -r)
 
+VERSION=$(echo $KERNEL | cut -d. -f1)
+PATCHLEVEL=$(echo $KERNEL | cut -d. -f2)
+SUBLEVEL=$(echo $KERNEL | cut -d. -f3 | cut -d- -f1)
+
+KERNELVER=$(($VERSION*100+$PATCHLEVEL));
+
+if [ $KERNELVER -gt 404 ]; then 
+ echo -e "$ERR ERROR: kernel version is not supported by this script. use install-experimental.sh - $NC" 1>&2
+ whiptail --title "emPC-A/RPI3 Installation Script" --msgbox "ERROR: kernel version is not supported by this script. use install-experimental.sh " 10 60
+ exit 0
+fi
+
 clear
 echo "--------------------------------------------------------------------------------"
 echo ""
