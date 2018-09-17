@@ -2,7 +2,6 @@
 
 export LC_ALL=C
 
-
 # patch function: find line containing <string start>, search for line containing <string end>, insert last argument as line before end
 # <filename> <string start> <string end> <string to insert before end>
 function insert2file {
@@ -52,6 +51,11 @@ NC='\033[0m' # No Color
 if [ $EUID -ne 0 ]; then
     echo -e "$ERR ERROR: This script should be run as root. $NC" 1>&2
     exit 1
+fi
+
+if ! ping -c 1 www.github.com; then
+        echo -e "$ERR ERROR: Internet connection required! $NC" 1>&2
+        exit 1
 fi
 
 lsb_release -a 2>1 | grep "Raspbian GNU/Linux" || (echo -e "$ERR ERROR: Raspbian GNU/Linux required! $NC" 1>&2; exit 1;)
