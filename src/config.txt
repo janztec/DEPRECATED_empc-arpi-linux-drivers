@@ -63,11 +63,8 @@ enable_uart=1
 # CAN
 dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
 
-# SERIAL PORT RS232/RS485
-# if serial tranceiver mode jumper J301 is:
-#   SET (RS232)    : use overlay: sc16is7xx-ttysc0-rs232
-#   NOT SET (RS485): use overlay: sc16is7xx-ttysc0-rs485
-dtoverlay=sc16is7xx-ttysc0-rs232
+# SERIAL PORT, depending on J301 RS232/RS485 mode is selected automatically, see /etc/udev/rules.d/33-ttysc0-rs232-rs485-mode.rules
+dtoverlay=sc16is7xx-ttysc0-rs232-rs485
 
 [pi2]
 # green LED (gpio5) as SD card activity
