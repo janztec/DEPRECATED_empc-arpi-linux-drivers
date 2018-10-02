@@ -236,14 +236,12 @@ fi
 # compile device tree files
 
 wget -nv $REPORAW/src/mcp2515-can0-overlay.dts -O mcp2515-can0-overlay.dts
-wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs232-overlay.dts -O sc16is7xx-ttysc0-rs232-overlay.dts
-wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs485-overlay.dts -O sc16is7xx-ttysc0-rs485-overlay.dts
+wget -nv $REPORAW/src/sc16is7xx-ttysc0-rs232-overlay.dts -O sc16is7xx-ttysc0-rs232-rs485-overlay.dts
 
 dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o mcp2515-can0.dtbo -b 0 mcp2515-can0-overlay.dts
-dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o sc16is7xx-ttysc0-rs232.dtbo -b 0 sc16is7xx-ttysc0-rs232-overlay.dts
-dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o sc16is7xx-ttysc0-rs485.dtbo -b 0 sc16is7xx-ttysc0-rs485-overlay.dts
+dtc -@ -H epapr -O dtb -W no-unit_address_vs_reg -o sc16is7xx-ttysc0-rs232-rs485.dtbo -b 0 sc16is7xx-ttysc0-rs232-rs485-overlay.dts
 
-if [ ! -f "sc16is7xx-ttysc0-rs232.dtbo" ] || [ ! -f "sc16is7xx-ttysc0-rs485.dtbo" ] || [ ! -f "mcp2515-can0.dtbo" ]; then
+if [ ! -f "sc16is7xx-ttysc0-rs232-rs485.dtbo" ] || [ ! -f "mcp2515-can0.dtbo" ]; then
  echo -e "$ERR Error: Installation failed! (driver device tree build failed) $NC" 1>&2
  whiptail --title "Error" --msgbox "Installation failed! (driver device tree build failed)" 10 60
  exit 1
@@ -254,11 +252,21 @@ fi
 /bin/cp -rf spi-bcm2835.ko /lib/modules/$KERNEL/kernel/drivers/spi/spi-bcm2835.ko
 
 /bin/cp -rf mcp2515-can0.dtbo /boot/overlays/mcp2515-can0.dtbo
-/bin/cp -rf sc16is7xx-ttysc0-rs232.dtbo /boot/overlays/sc16is7xx-ttysc0-rs232.dtbo
-/bin/cp -rf sc16is7xx-ttysc0-rs485.dtbo /boot/overlays/sc16is7xx-ttysc0-rs485.dtbo
+/bin/cp -rf sc16is7xx-ttysc0-rs232-rs485.dtbo /boot/overlays/sc16is7xx-ttysc0-rs232-rs485.dtbo
 
 # register new driver modules
 depmod -a
+
+# update 2018-10 : check on every boot if J301 is set. if it is not set, then set RS485 mode automatically in driver using ioctl
+wget -nv $REPORAW/src/tty-auto-rs485.c -O tty-auto-rs485.c
+gcc tty-auto-rs485.c -o /usr/sbin/tty-auto-rs485
+echo 'KERNEL=="ttySC0", RUN+="/bin/echo '"'"'24'"'"' > /sys/class/gpio/export && /bin/echo '"'"'in'"'"' > /sys/class/gpio/gpio24/direction && /bin/cat /sys/class/gpio/gpio24/value | /bin/grep '"'"'1'"'"' && /usr/sbin/tty-auto-rs485 /dev/ttySC0"' > /etc/udev/rules.d/33-ttysc0-rs232-rs485-mode.rules
+
+if [ ! -f "/usr/sbin/tty-auto-rs485" ]; then
+ echo -e "$ERR Error: Installation failed! (could not build tty-auto-rs485) $NC" 1>&2
+ whiptail --title "Error" --msgbox "Installation failed! (could not build tty-auto-rs485)" 10 60
+ exit 1
+fi
 
 
 WELCOME2="These configuration settings will automatically be made:\n
@@ -295,10 +303,11 @@ echo -e "$INFO INFO: creating backup copy of config: /boot/config-backup-$DATE.t
 echo -e "$INFO INFO: Using default config.txt $NC" 1>&2
 wget -nv $REPORAW/src/config.txt -O /boot/config.txt
 
-# if J301 is configured to RS485 mode
-echo "24" > /sys/class/gpio/export
-echo "in" > /sys/class/gpio/gpio24/direction
-cat /sys/class/gpio/gpio24/value | grep "1" && sed -i 's/dtoverlay=sc16is7xx-ttysc0-rs232/dtoverlay=sc16is7xx-ttysc0-rs485/' /boot/config.txt
+# update 2018-10 : deprecated
+#  if J301 is configured to RS485 mode
+#  echo "24" > /sys/class/gpio/export
+#  echo "in" > /sys/class/gpio/gpio24/direction
+#  cat /sys/class/gpio/gpio24/value | grep "1" && sed -i 's/dtoverlay=sc16is7xx-ttysc0-rs232/dtoverlay=sc16is7xx-ttysc0-rs485/' /boot/config.txt
 
 # installing service to start can0 on boot
 if [ ! -f "/bin/systemctl" ]; then
