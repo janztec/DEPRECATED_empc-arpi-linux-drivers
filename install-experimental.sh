@@ -273,7 +273,7 @@ else
         echo -e "$INFO INFO: Installing RS232/RS485 jumper check in /etc/rc.local $NC"
         sed -i 's/exit 0//g' /etc/rc.local
         echo '# if jumper J301 is not set, switch /dev/ttySC0 to RS485 mode' >>/etc/rc.local
-        echo '/bin/echo '"'"'24'"'"' > /sys/class/gpio/export; /bin/echo '"'"'in'"'"' > /sys/class/gpio/gpio24/direction && /bin/cat /sys/class/gpio/gpio24/value | /bin/grep '"'"'1'"'"' && /usr/sbin/tty-auto-rs485 /dev/ttySC0' >>/etc/rc.local
+        echo '/bin/echo '"'"'24'"'"' > /sys/class/gpio/export || true; /bin/echo '"'"'in'"'"' > /sys/class/gpio/gpio24/direction && /bin/cat /sys/class/gpio/gpio24/value | /bin/grep '"'"'1'"'"' && /usr/sbin/tty-auto-rs485 /dev/ttySC0' >>/etc/rc.local
         echo "exit 0" >>/etc/rc.local
 fi
 
