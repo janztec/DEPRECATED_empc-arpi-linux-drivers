@@ -8,7 +8,7 @@ Conflicts=shutdown.target
 
 [Service]
 EnvironmentFile=-/etc/default/hwclock
-ExecStart=/sbin/hwclock --hctosys
+ExecStart=/bin/bash -c '/usr/bin/test -d /sys/class/i2c-adapter/i2c-1 && sleep 2 && /bin/echo mcp7940x 0x6f > /sys/class/i2c-adapter/i2c-1/new_device && /bin/sleep 2 && /sbin/hwclock --hctosys'
 Restart=on-failure
 RestartSec=1s
 StartLimitInterval=10min
