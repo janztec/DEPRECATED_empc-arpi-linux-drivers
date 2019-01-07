@@ -5,6 +5,13 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+
+cat /proc/cpuinfo | grep Revision | grep "082"
+if (($? == 0)); then
+	echo "ERROR: This script is not compatible with emPC-A/RPI3. visit https://github.com/janztec/empc-arpi3-linux-drivers for more information." > /dev/stderr
+	exit 1
+fi
+
 YEAR=$[`date +'%Y'`]
 if [ $YEAR -le 2015 ] ; then
         echo "ERROR: invalid date. set current date and time!";
@@ -78,12 +85,7 @@ else
 fi
 
 
-cat /proc/cpuinfo | grep Revision | grep "082"
-if (($? == 0)); then
-	wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion3.txt -O /root/imageversion.txt
-else
-	wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion.txt -O /root/imageversion.txt
-fi
+wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/imageversion.txt -O /root/imageversion.txt
 
 # get installed gcc version
 GCCVERBACKUP=$(gcc --version | egrep -o '[0-9]+\.[0-9]+' | head -n 1)

@@ -1,46 +1,14 @@
-# emPC-A/RPI3+ (RPI & RPI3), emVIEW-7/RPI3+ (RPI & RPI3) by Janz Tec AG
+# emPC-A/RPI, emVIEW-7/RPI by Janz Tec AG
 
 This script installs and configures Linux **Socket CAN**, **Serial port RS232/RS485** and **RTC** drivers
-
-## :large_orange_diamond: Installation Instructions
-
-**:heavy_exclamation_mark:  recommended for new designs!**
-
-In newer Raspbian images the Linux kernel is installed in version 4.9 (or later) and therefore our previous script _install.sh_ will no longer work correctly. For this newer Linux kernel versions, our new driver installation script _install-experimental.sh_ is still under development. Your feedback is welcome!
-
-_create a backup copy of your µSD card before applying these steps!_
-
-**Step 1:**
-
-Install one of the listed RASPBIAN operating system versions from below: 
-
-1) **Raspbian Stretch with desktop version 2018-11-13 or later**
-
-   _install-experimental.sh_ script uses the mainline kernel driver sources with only a few source code patches, see _install-experimental.sh_ for more details. Our performance optimizations of the CAN, UART and SPI drivers are currently not included in these mainline drivers.   
-
-   https://www.raspberrypi.org/downloads/raspbian/
-
-
-**Step 2:**
-
-
-```
-sudo bash
-cd /tmp
-wget https://raw.githubusercontent.com/janztec/empc-arpi-linux-drivers/master/install-experimental.sh -O install-experimental.sh
-bash install-experimental.sh
-```
-
-
-<br />
-<br />
-<br />
-
 
 
 ## :white_check_mark: Installation Instructions:
 
-## :large_orange_diamond: Not compatible with emPC-A/RPI3+ and emVIEW-7/RPI3+
+## :large_orange_diamond: Not compatible with emPC-A/RPI3+ and emVIEW-7/RPI3+! Use empc-arpi3-linux-drivers repository!
+
+https://github.com/janztec/empc-arpi3-linux-drivers
+
 
 Our pre-installed images are based on Raspbian Jessie with Linux kernel version 4.4 and drivers installed by our _install.sh_ script. If you want to use newer kernel versions, you can try our "Installation Instructions (Experimental)" below.
 
