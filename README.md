@@ -24,14 +24,7 @@ Install one of the listed RASPBIAN operating system versions from below:
 
 (Raspbian Jessie Lite, or Raspbian Jessie recommended. NOOBS installation **not** supported)
 
-1) **_emPC-A/RPI3_: Raspbian Jessie version 2016-09-28**
-   * Lite:
-https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2016-09-28/
-   * Desktop:
-https://downloads.raspberrypi.org/raspbian/images/raspbian-2016-09-28/
-
-
-2) **_emPC-A/RPI_: Raspbian Jessie Lite version 2015-11-24** 
+1) **_emPC-A/RPI_: Raspbian Jessie Lite version 2015-11-24** 
    * Lite:
    https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2015-11-24/ 
    * Desktop:
@@ -61,15 +54,15 @@ bash install.sh
 ## Product pages
 https://www.janztec.com/en/embedded-pc/embedded-computer/empc-arpi3/
 
-**emPC-A/RPI3**
+**emPC-A/RPI**
 
 ![emPC-A/RPI3](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emPC-A-RPI2/janztec_produkte_embedded_emPC_RPI_raspberry_front.jpg)
 
-**FEATURES emPC-A/RPI3**
+**FEATURES emPC-A/RPI**
 * Processor 
-  * Based on Raspberry Pi 3, Model B 
-  * Broadcom BCM2837 processor 
-  * Quad-Core CPU based on ARM Cortex-A53 
+  * Based on Raspberry Pi, Model B 
+  * Broadcom processor 
+  * Quad-Core CPU
   * Fanless cooling concept 
   * Realtime clock, battery buffered 
 * Memory 
@@ -92,17 +85,17 @@ https://www.janztec.com/en/embedded-pc/embedded-computer/empc-arpi3/
 
 -------
 
-**emVIEW-7/RPI3**
+**emVIEW-7/RPI**
 
 https://www.janztec.com/en/embedded-pc/panel-pc/emview-7rpi3/
 
 ![emVIEW-7/RPI3](https://www.janztec.com/fileadmin/user_upload/Produkte/embedded/emVIEW-7-RPI3/janz_tec_produkte_embedded_emVIEW-7_RPI3_front_schraeg_800x8001.jpg)
 
-**FEATURES emVIEW-7/RPI3**
+**FEATURES emVIEW-7/RPI**
 * LCD Display
    * 7.0" WSVGA display size
    * LED backlight technology
    * Resolution 800 x 480
    * Projected capacitive touch screen (PCAP) (with multitouch capabilities)
    * Glass surface
-* Same I/O as emPC-A/RPI3
+* Same I/O as emPC-A/RPI
