@@ -5,9 +5,13 @@ This script installs and configures Linux **Socket CAN**, **Serial port RS232/RS
 
 ## :white_check_mark: Installation Instructions:
 
-## :large_orange_diamond: Not compatible with emPC-A/RPI3+ and emVIEW-7/RPI3+! Use empc-arpi3-linux-drivers repository!
+## :large_orange_diamond: Not compatible with emPC-A/RPI3 / RPI3+ and emVIEW-7/RPI3 /RPI3+ ! Use empc-arpi3-linux-drivers repository!
+
+for emPC-A/RPI3 / RPI3+ and emVIEW-7/RPI3 /RPI3+ use: 
 
 https://github.com/janztec/empc-arpi3-linux-drivers
+
+------------
 
 
 Our pre-installed images are based on Raspbian Jessie with Linux kernel version 4.4 and drivers installed by our _install.sh_ script. If you want to use newer kernel versions, you can try our "Installation Instructions (Experimental)" below.
