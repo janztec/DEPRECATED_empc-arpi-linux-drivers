@@ -34,6 +34,8 @@ else
     echo "Architecture=armv6l" >>/etc/CODESYSControl.cfg
 fi
 
+sed -i 's/armv7l/armv6l/' /etc/CODESYSControl_User.cfg || true
+
 echo "INFO: installing rts_set_baud.sh"
 
 echo "#!/bin/sh" >/root/rts_set_baud.sh
