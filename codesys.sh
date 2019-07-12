@@ -25,6 +25,15 @@ else
     echo "ScriptName=rts_set_baud.sh" >>/etc/CODESYSControl.cfg
 fi
 
+if grep -q "armv6l" "/etc/CODESYSControl.cfg"; then
+        echo ""
+else
+    echo "INFO: using CODESYS in single core mode"
+    echo "" >>/etc/CODESYSControl.cfg
+    echo "[CmpRasPi]" >>/etc/CODESYSControl.cfg
+    echo "Architecture=armv6l" >>/etc/CODESYSControl.cfg
+fi
+
 echo "INFO: installing rts_set_baud.sh"
 
 echo "#!/bin/sh" >/root/rts_set_baud.sh
