@@ -47,6 +47,15 @@ echo "/sbin/ifconfig can0 txqueuelen 1000">>/root/rts_set_baud.sh
 echo "/sbin/ifconfig can0 up">>/root/rts_set_baud.sh
 chmod 755 /root/rts_set_baud.sh
 
+if grep -q "rts_set_baud" "/etc/CODESYSControl.cfg"; then
+        echo ""
+else
+    echo "" >>/etc/CODESYSControl.cfg
+    echo "[CmpSocketCanDrv]" >>/etc/CODESYSControl.cfg
+    echo "ScriptPath=/root/" >>/etc/CODESYSControl.cfg
+    echo "ScriptName=rts_set_baud.sh" >>/etc/CODESYSControl.cfg
+fi
+
 echo "INFO: disabling i2c and spi modules in /etc/modules"
 sed -i 's/spi-bcm2708/#spi-bcm2708/g' /etc/modules
 sed -i 's/i2c-bcm2708/#i2c-bcm2708/g' /etc/modules
